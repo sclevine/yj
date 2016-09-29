@@ -8,7 +8,8 @@ import (
 )
 
 type JSON struct {
-	EscapeHTML bool
+	EscapeHTML  bool
+	JSONDecoder bool
 }
 
 func (j *JSON) Marshal(v interface{}) ([]byte, error) {
@@ -21,6 +22,9 @@ func (j *JSON) Marshal(v interface{}) ([]byte, error) {
 	return keyJSON.Bytes()[:keyJSON.Len()-1], nil
 }
 
-func (*JSON) Unmarshal(data []byte, v interface{}) error {
+func (j *JSON) Unmarshal(data []byte, v interface{}) error {
+	if j.JSONDecoder {
+		return json.Unmarshal(data, v)
+	}
 	return goyaml.Unmarshal(data, v)
 }

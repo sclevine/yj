@@ -10,12 +10,14 @@ type Encoder struct {
 	Marshal      func(interface{}) ([]byte, error)
 	KeyUnmarshal func([]byte, interface{}) error
 
-	// If set, these will be converted to floats
+	// If set, these will be converted to floats.
 	NaN, PosInf, NegInf interface{}
 }
 
-// YAML encodes a JSON object into YAML accounting for string keys that represent special values
-// Structs internal to json are currently left unmodified.
+// YAML encodes a JSON object into YAML.
+// Special string keys from the Decoder are accounted for.
+// YAML objects are accepted, as long as represent valid JSON.
+// Internal structs are currently passed through unmodified.
 func (e *Encoder) YAML(json interface{}) (yaml []byte, err error) {
 	defer catchFailure(&err)
 

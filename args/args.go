@@ -8,14 +8,17 @@ import (
 type Config struct {
 	Reverse      bool
 	CandiedYAML  bool
+	JSONDecoder  bool
 	EscapeHTML   bool
 	FloatStrings bool
 	JSONKeys     bool
+	Help         bool
 }
 
 const (
 	FlagReverse        = 'r'
 	FlagCandiedYAML    = 'c'
+	FlagJSONDecoder    = 'j'
 	FlagEscapeHTML     = 'e'
 	FlagNoFloatStrings = 'n'
 	FlagJSONKeys       = 'k'
@@ -34,9 +37,15 @@ func Parse(args []string) (Config, error) {
 	config := Config{
 		Reverse:      strings.ContainsRune(flatArgs, FlagReverse),
 		CandiedYAML:  strings.ContainsRune(flatArgs, FlagCandiedYAML),
+		JSONDecoder:  strings.ContainsRune(flatArgs, FlagJSONDecoder),
 		EscapeHTML:   strings.ContainsRune(flatArgs, FlagEscapeHTML),
 		FloatStrings: !strings.ContainsRune(flatArgs, FlagNoFloatStrings),
 		JSONKeys:     strings.ContainsRune(flatArgs, FlagJSONKeys),
+		Help:         strings.ContainsRune(flatArgs, FlagHelp),
+	}
+
+	if !config.Reverse && config.JSONDecoder {
+		return Config{}, fmt.Errorf("flag -%c cannot be specified without flag -%c", FlagJSONDecoder, FlagReverse)
 	}
 
 	if !config.Reverse && config.JSONKeys {
@@ -48,7 +57,7 @@ func Parse(args []string) (Config, error) {
 
 func flagFilter(r rune) rune {
 	switch r {
-	case FlagReverse, FlagCandiedYAML, FlagEscapeHTML,
+	case FlagReverse, FlagCandiedYAML, FlagJSONDecoder, FlagEscapeHTML,
 		FlagNoFloatStrings, FlagJSONKeys, FlagHelp, '\t', ' ', '-':
 		return -1
 	}

@@ -10,12 +10,12 @@ type Decoder struct {
 	Unmarshal  func([]byte, interface{}) error
 	KeyMarshal func(interface{}) ([]byte, error)
 
-	// Must be set to valid JSON values
-	// If not set, input YAML must not contain these
+	// If not set, input YAML must not contain these.
+	// These are returned unmodified in the output of JSON.
 	NaN, PosInf, NegInf interface{}
 }
 
-// JSON decodes YAML into an object that marshals cleanly into JSON
+// JSON decodes YAML into an object that marshals cleanly into JSON.
 func (d *Decoder) JSON(yaml []byte) (json interface{}, err error) {
 	defer catchFailure(&err)
 
