@@ -9,6 +9,21 @@ import (
 	"github.com/sclevine/yj/yaml"
 )
 
+func TestDecoder(t *testing.T) {
+	mock := &mockYAML{value: yamlFixture}
+	decoder := &yaml.Decoder{
+		Unmarshal:  mock.unmarshal,
+		KeyMarshal: json.Marshal,
+		NaN:        F{"NaN"},
+		PosInf:     F{"Infinity"},
+		NegInf:     F{"-Infinity"},
+	}
+	json, err := decoder.JSON([]byte("some YAML"))
+	assertEqual(t, err, nil)
+	assertEqual(t, json, jsonFixture)
+	assertEqual(t, mock.data, []byte("some YAML"))
+}
+
 func TestDecoderWhenYAMLIsInvalid(t *testing.T) {
 	mock := &mockYAML{err: errors.New("some error")}
 	decoder := &yaml.Decoder{Unmarshal: mock.unmarshal}
@@ -47,19 +62,4 @@ func TestDecoderWhenYAMLHasInvalidKeys(t *testing.T) {
 	}
 	_, err := decoder.JSON(nil)
 	assertEqual(t, err.Error(), "json: unsupported value: NaN")
-}
-
-func TestDecoderWhenYAMLIsValid(t *testing.T) {
-	mock := &mockYAML{value: yamlFixture}
-	decoder := &yaml.Decoder{
-		Unmarshal:  mock.unmarshal,
-		KeyMarshal: json.Marshal,
-		NaN:        F{"NaN"},
-		PosInf:     F{"Infinity"},
-		NegInf:     F{"-Infinity"},
-	}
-	json, err := decoder.JSON([]byte("some YAML"))
-	assertEqual(t, err, nil)
-	assertEqual(t, json, jsonFixture)
-	assertEqual(t, mock.data, []byte("some YAML"))
 }

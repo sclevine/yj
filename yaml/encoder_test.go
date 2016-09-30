@@ -10,6 +10,21 @@ import (
 	"github.com/sclevine/yj/yaml"
 )
 
+func TestEncoder(t *testing.T) {
+	mock := &mockYAML{data: []byte("some YAML")}
+	encoder := &yaml.Encoder{
+		Marshal:      mock.marshal,
+		KeyUnmarshal: keyUnmarshal,
+		NaN:          F{"NaN"},
+		PosInf:       F{"Infinity"},
+		NegInf:       F{"-Infinity"},
+	}
+	yaml, err := encoder.YAML(jsonFixture)
+	assertEqual(t, err, nil)
+	assertEqual(t, mock.value, yamlFixture)
+	assertEqual(t, yaml, []byte("some YAML"))
+}
+
 func TestEncoderWhenYAMLIsInvalid(t *testing.T) {
 	mock := &mockYAML{err: errors.New("some error")}
 	encoder := &yaml.Encoder{Marshal: mock.marshal}
@@ -32,21 +47,6 @@ func TestEncoderWhenYAMLHasInvalidTypes(t *testing.T) {
 
 	_, err = encoder.YAML(float32(0))
 	assertEqual(t, err.Error(), "unexpected type: 0")
-}
-
-func TestEncoderWhenYAMLIsValid(t *testing.T) {
-	mock := &mockYAML{data: []byte("some YAML")}
-	encoder := &yaml.Encoder{
-		Marshal:      mock.marshal,
-		KeyUnmarshal: keyUnmarshal,
-		NaN:          F{"NaN"},
-		PosInf:       F{"Infinity"},
-		NegInf:       F{"-Infinity"},
-	}
-	yaml, err := encoder.YAML(jsonFixture)
-	assertEqual(t, err, nil)
-	assertEqual(t, mock.value, yamlFixture)
-	assertEqual(t, yaml, []byte("some YAML"))
 }
 
 func keyUnmarshal(data []byte, v interface{}) error {

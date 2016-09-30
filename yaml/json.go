@@ -3,13 +3,10 @@ package yaml
 import (
 	"bytes"
 	"encoding/json"
-
-	goyaml "gopkg.in/yaml.v2"
 )
 
 type JSON struct {
-	EscapeHTML  bool
-	JSONDecoder bool
+	EscapeHTML bool
 }
 
 func (j *JSON) Marshal(v interface{}) ([]byte, error) {
@@ -20,11 +17,4 @@ func (j *JSON) Marshal(v interface{}) ([]byte, error) {
 		return nil, err
 	}
 	return keyJSON.Bytes()[:keyJSON.Len()-1], nil
-}
-
-func (j *JSON) Unmarshal(data []byte, v interface{}) error {
-	if j.JSONDecoder {
-		return json.Unmarshal(data, v)
-	}
-	return goyaml.Unmarshal(data, v)
 }

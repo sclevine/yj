@@ -21,7 +21,7 @@ Converts stdin from JSON/YAML to YAML/JSON.
 
 -r     Convert JSON to YAML instead of YAML to JSON
 -c     Use CandiedYAML parser instead of GoYAML parser
--n     Do not covert infinity, -infinity, and NaN to/from strings
+-n     Do not covert Infinity, -Infinity, and NaN to/from strings
 -h     Show this help message
 
 YAML to JSON options:
@@ -30,12 +30,12 @@ YAML to JSON options:
 
 JSON to YAML (-r) options:
 
--j     Use a JSON parser instead of a YAML parser to decode JSON
+-y     Use a YAML decoder instead of a JSON decoder to parse JSON
 -k     Attempt to parse keys as JSON objects/numbers
 `
 
 func main() {
-	config, err := args.Parse(os.Args[1:])
+	config, err := args.Parse(os.Args[1:]...)
 	if err != nil {
 		fail(err)
 	}
@@ -61,7 +61,7 @@ func main() {
 	fmt.Printf("%s", output)
 }
 
-func ConvertYAMLToJSON(input []byte, config args.Config) ([]byte, error) {
+func ConvertYAMLToJSON(input []byte, config *args.Config) ([]byte, error) {
 	if len(bytes.TrimSpace(input)) == 0 {
 		return nil, nil
 	}
@@ -97,14 +97,11 @@ func ConvertYAMLToJSON(input []byte, config args.Config) ([]byte, error) {
 	return output.Bytes(), nil
 }
 
-func ConvertJSONToYAML(input []byte, config args.Config) ([]byte, error) {
+func ConvertJSONToYAML(input []byte, config *args.Config) ([]byte, error) {
 	if len(bytes.TrimSpace(input)) == 0 {
 		return nil, nil
 	}
 	encoder := &yaml.Encoder{}
-	if config.JSONKeys {
-		encoder.KeyUnmarshal = (&yaml.JSON{JSONDecoder: config.JSONDecoder}).Unmarshal
-	}
 
 	if config.FloatStrings {
 		encoder.NaN = "NaN"
@@ -117,9 +114,16 @@ func ConvertJSONToYAML(input []byte, config args.Config) ([]byte, error) {
 		encoder.Marshal = candiedyaml.Marshal
 	}
 
-	unmarshalFunc := goyaml.Unmarshal
-	if config.JSONDecoder {
-		unmarshalFunc = json.Unmarshal
+	unmarshalFunc := json.Unmarshal
+	if config.JSONAsYAML {
+		unmarshalFunc = goyaml.Unmarshal
+		if config.CandiedYAML {
+			unmarshalFunc = candiedyaml.Unmarshal
+		}
+	}
+
+	if config.JSONKeys {
+		encoder.KeyUnmarshal = unmarshalFunc
 	}
 
 	var data interface{}

@@ -8,7 +8,7 @@ import (
 type Config struct {
 	Reverse      bool
 	CandiedYAML  bool
-	JSONDecoder  bool
+	JSONAsYAML   bool
 	EscapeHTML   bool
 	FloatStrings bool
 	JSONKeys     bool
@@ -18,38 +18,38 @@ type Config struct {
 const (
 	FlagReverse        = 'r'
 	FlagCandiedYAML    = 'c'
-	FlagJSONDecoder    = 'j'
+	FlagJSONAsYAML     = 'y'
 	FlagEscapeHTML     = 'e'
 	FlagNoFloatStrings = 'n'
 	FlagJSONKeys       = 'k'
 	FlagHelp           = 'h'
 )
 
-func Parse(args []string) (Config, error) {
+func Parse(args ...string) (*Config, error) {
 	flatArgs := strings.Join(args, "")
 
 	invalidArgs := strings.Split(strings.Map(flagFilter, flatArgs), "")
 
 	if len(invalidArgs) > 0 {
-		return Config{}, fmt.Errorf("invalid flags specified: %s", strings.Join(invalidArgs, " "))
+		return nil, fmt.Errorf("invalid flags specified: %s", strings.Join(invalidArgs, " "))
 	}
 
-	config := Config{
+	config := &Config{
 		Reverse:      strings.ContainsRune(flatArgs, FlagReverse),
 		CandiedYAML:  strings.ContainsRune(flatArgs, FlagCandiedYAML),
-		JSONDecoder:  strings.ContainsRune(flatArgs, FlagJSONDecoder),
+		JSONAsYAML:   strings.ContainsRune(flatArgs, FlagJSONAsYAML),
 		EscapeHTML:   strings.ContainsRune(flatArgs, FlagEscapeHTML),
 		FloatStrings: !strings.ContainsRune(flatArgs, FlagNoFloatStrings),
 		JSONKeys:     strings.ContainsRune(flatArgs, FlagJSONKeys),
 		Help:         strings.ContainsRune(flatArgs, FlagHelp),
 	}
 
-	if !config.Reverse && config.JSONDecoder {
-		return Config{}, fmt.Errorf("flag -%c cannot be specified without flag -%c", FlagJSONDecoder, FlagReverse)
+	if !config.Reverse && config.JSONAsYAML {
+		return nil, fmt.Errorf("flag -%c cannot be specified without flag -%c", FlagJSONAsYAML, FlagReverse)
 	}
 
 	if !config.Reverse && config.JSONKeys {
-		return Config{}, fmt.Errorf("flag -%c cannot be specified without flag -%c", FlagJSONKeys, FlagReverse)
+		return nil, fmt.Errorf("flag -%c cannot be specified without flag -%c", FlagJSONKeys, FlagReverse)
 	}
 
 	return config, nil
@@ -57,7 +57,7 @@ func Parse(args []string) (Config, error) {
 
 func flagFilter(r rune) rune {
 	switch r {
-	case FlagReverse, FlagCandiedYAML, FlagJSONDecoder, FlagEscapeHTML,
+	case FlagReverse, FlagCandiedYAML, FlagJSONAsYAML, FlagEscapeHTML,
 		FlagNoFloatStrings, FlagJSONKeys, FlagHelp, '\t', ' ', '-':
 		return -1
 	}
