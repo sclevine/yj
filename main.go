@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math"
 	"os"
@@ -35,33 +36,42 @@ JSON to YAML (-r) options:
 `
 
 func main() {
-	config, err := args.Parse(os.Args[1:]...)
+	os.Exit(Run(os.Stdin, os.Stdout, os.Stderr, os.Args))
+}
+
+func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) {
+	config, err := args.Parse(osArgs[1:]...)
 	if err != nil {
-		fail(err)
+		failMsg(stderr, err)
+		return 1
 	}
 	if config.Help {
-		fmt.Printf(HelpMsg, os.Args[0])
-		os.Exit(0)
+		fmt.Fprintf(stdout, HelpMsg, os.Args[0])
+		return 0
 	}
 
-	input, err := ioutil.ReadAll(os.Stdin)
+	input, err := ioutil.ReadAll(stdin)
 	if err != nil {
-		fail(err)
+		failMsg(stderr, err)
+		return 1
 	}
 
-	convertFunc := ConvertYAMLToJSON
+	convertFunc := convertYAMLToJSON
 	if config.Reverse {
-		convertFunc = ConvertJSONToYAML
+		convertFunc = convertJSONToYAML
 	}
 
 	output, err := convertFunc(input, config)
 	if err != nil {
-		fail(err)
+		failMsg(stderr, err)
+		return 1
 	}
-	fmt.Printf("%s", output)
+	fmt.Fprintf(stdout, "%s", output)
+
+	return 0
 }
 
-func ConvertYAMLToJSON(input []byte, config *args.Config) ([]byte, error) {
+func convertYAMLToJSON(input []byte, config *args.Config) ([]byte, error) {
 	if len(bytes.TrimSpace(input)) == 0 {
 		return nil, nil
 	}
@@ -97,7 +107,7 @@ func ConvertYAMLToJSON(input []byte, config *args.Config) ([]byte, error) {
 	return output.Bytes(), nil
 }
 
-func ConvertJSONToYAML(input []byte, config *args.Config) ([]byte, error) {
+func convertJSONToYAML(input []byte, config *args.Config) ([]byte, error) {
 	if len(bytes.TrimSpace(input)) == 0 {
 		return nil, nil
 	}
@@ -134,8 +144,7 @@ func ConvertJSONToYAML(input []byte, config *args.Config) ([]byte, error) {
 	return encoder.YAML(data)
 }
 
-func fail(err error) {
-	fmt.Fprintf(os.Stderr, "Error: %s\n", err)
-	fmt.Printf(HelpMsg, os.Args[0])
-	os.Exit(1)
+func failMsg(out io.Writer, err error) {
+	fmt.Fprintf(out, "Error: %s\n", err)
+	fmt.Fprintf(out, HelpMsg, os.Args[0])
 }

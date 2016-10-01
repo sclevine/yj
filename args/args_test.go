@@ -7,12 +7,6 @@ import (
 	"github.com/sclevine/yj/args"
 )
 
-func assertEqual(t *testing.T, a, b interface{}) {
-	if !reflect.DeepEqual(a, b) {
-		t.Fatalf("\nAssertion failed:\n\t%#v\nnot equal to\n\t%#v\n", a, b)
-	}
-}
-
 func TestParse(t *testing.T) {
 	config, err := args.Parse("-rc", "y\te-", "kn-k ", "h h", "")
 	assertEqual(t, err, nil)
@@ -47,4 +41,10 @@ func TestParseWithInvalidFlags(t *testing.T) {
 
 	_, err = args.Parse("k")
 	assertEqual(t, err.Error(), "flag -k cannot be specified without flag -r")
+}
+
+func assertEqual(t *testing.T, a, b interface{}) {
+	if !reflect.DeepEqual(a, b) {
+		t.Fatalf("\nAssertion failed:\n\t%#v\nnot equal to\n\t%#v\n", a, b)
+	}
 }
