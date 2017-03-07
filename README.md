@@ -2,7 +2,7 @@
 CLI - YAML &lt;-> JSON
 
 ```
-opal:yj stephen$ .yj -h
+opal:yj stephen$ yj -h
 Usage: yj [-][rcjenkh]
 
 Converts stdin from JSON/YAML to YAML/JSON.
