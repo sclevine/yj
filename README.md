@@ -1,23 +1,25 @@
 # yj
-CLI - YAML &lt;-> JSON
+CLI - YAML &lt;-> TOML &lt;-> JSON
 
 ```
 opal:yj stephen$ yj -h
-Usage: yj [-][rcjenkh]
+Usage: ./yj [-][ytjrnekh]
 
-Converts stdin from JSON/YAML to YAML/JSON.
+Convert YAML, TOML, or JSON to YAML, TOML, or JSON.
 
--r     Convert JSON to YAML instead of YAML to JSON
--c     Use CandiedYAML parser instead of GoYAML parser
+-x[x]  Convert using stdin. Valid options:
+          -yj, -y = YAML to JSON (default)
+          -yy     = YAML to YAML
+          -yt     = YAML to TOML
+          -tj, -t = TOML to JSON
+          -ty     = TOML to YAML
+          -tt     = TOML to TOML
+          -jj     = JSON to JSON
+          -jy, -r = JSON to YAML
+          -jt     = JSON to TOML
 -n     Do not covert Infinity, -Infinity, and NaN to/from strings
+-e     Escape HTML (JSON output only)
+-k     Attempt to parse keys as objects or numbers types (YAML output only)
+-i     Indent TOML (TOML output only)
 -h     Show this help message
-
-YAML to JSON options:
-
--e     Escape HTML in JSON output (ignored for JSON to YAML)
-
-JSON to YAML (-r) options:
-
--y     Use a YAML decoder instead of a JSON decoder to parse JSON
--k     Attempt to parse keys as JSON objects/numbers
 ```

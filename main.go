@@ -18,9 +18,9 @@ import (
 
 const HelpMsg = `Usage: %s [-][ytjrnekh]
 
-Convert JSON, YAML, or TOML to JSON, YAML, or TOML.
+Convert YAML, TOML, or JSON to YAML, TOML, or JSON.
 
--x[x]  Convert. Valid options:
+-x[x]  Convert using stdin. Valid options:
           -yj, -y = YAML to JSON (default)
           -yy     = YAML to YAML
           -yt     = YAML to TOML
