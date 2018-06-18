@@ -20,7 +20,6 @@ type Encoder struct {
 // Internal structs are currently passed through unmodified.
 func (e *Encoder) YAML(json interface{}) (yaml []byte, err error) {
 	defer catchFailure(&err)
-
 	return e.Marshal(e.yamlify(json))
 }
 

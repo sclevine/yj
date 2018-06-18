@@ -8,39 +8,38 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	config, err := args.Parse("-rc", "y\te-", "kn-k ", "h h", "")
+	config, err := args.Parse("-t", "y\tk-", "kn-k ", "h h", "")
 	assertEqual(t, err, nil)
 	assertEqual(t, config, &args.Config{
-		Reverse:      true,
-		CandiedYAML:  true,
-		JSONAsYAML:   true,
-		EscapeHTML:   true,
+		From:         args.TOML,
+		To:           args.YAML,
+		EscapeHTML:   false,
 		FloatStrings: false,
 		JSONKeys:     true,
 		Help:         true,
 	})
-	config, err = args.Parse("--\t\t  ", "")
+	config, err = args.Parse("--\t\te  ", "")
 	assertEqual(t, err, nil)
 	assertEqual(t, config, &args.Config{
-		Reverse:      false,
-		CandiedYAML:  false,
-		JSONAsYAML:   false,
-		EscapeHTML:   false,
+		From:         args.YAML,
+		To:           args.JSON,
+		EscapeHTML:   true,
 		FloatStrings: true,
 		JSONKeys:     false,
 		Help:         false,
 	})
+	// TODO: test more ytj combinations
 }
 
 func TestParseWithInvalidFlags(t *testing.T) {
-	_, err := args.Parse("-arc", "yb\te-", "kn-k ", "hc ~ dh", "ab")
+	_, err := args.Parse("-ar", "yb\te-", "kn-k ", "h ~ dh", "ab")
 	assertEqual(t, err.Error(), "invalid flags specified: a b ~ d a b")
 
-	_, err = args.Parse("y")
-	assertEqual(t, err.Error(), "flag -y cannot be specified without flag -r")
-
 	_, err = args.Parse("k")
-	assertEqual(t, err.Error(), "flag -k cannot be specified without flag -r")
+	assertEqual(t, err.Error(), "flag -k only valid for YAML output")
+
+	_, err = args.Parse("ejy")
+	assertEqual(t, err.Error(), "flag -e only valid for JSON output")
 }
 
 func assertEqual(t *testing.T, a, b interface{}) {

@@ -18,8 +18,6 @@ type Decoder struct {
 // JSON decodes YAML into an object that marshals cleanly into JSON.
 func (d *Decoder) JSON(yaml []byte) (json interface{}, err error) {
 	defer catchFailure(&err)
-
-	// Must pass *interface{} due to go-yaml quirk
 	var data interface{}
 	if err := d.Unmarshal(yaml, &data); err != nil {
 		return nil, err

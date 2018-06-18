@@ -9,30 +9,33 @@ import (
 	"math"
 	"os"
 
-	"github.com/cloudfoundry-incubator/candiedyaml"
 	goyaml "gopkg.in/yaml.v2"
 
 	"github.com/sclevine/yj/args"
 	"github.com/sclevine/yj/yaml"
+	"github.com/BurntSushi/toml"
 )
 
-const HelpMsg = `Usage: %s [-][rcjenkh]
+const HelpMsg = `Usage: %s [-][ytjrnekh]
 
-Converts stdin from JSON/YAML to YAML/JSON.
+Convert JSON, YAML, or TOML to JSON, YAML, or TOML.
 
--r     Convert JSON to YAML instead of YAML to JSON
--c     Use CandiedYAML parser instead of GoYAML parser
+-x[x]  Convert. Valid options:
+          -yj, -y = YAML to JSON (default)
+          -yy     = YAML to YAML
+          -yt     = YAML to TOML
+          -tj, -t = TOML to JSON
+          -ty     = TOML to YAML
+          -tt     = TOML to TOML
+          -jj     = JSON to JSON
+          -jy, -r = JSON to YAML
+          -jt     = JSON to TOML
 -n     Do not covert Infinity, -Infinity, and NaN to/from strings
+-e     Escape HTML (JSON output only)
+-k     Attempt to parse keys as objects or numbers types (YAML output only)
+-i     Indent TOML (TOML output only)
 -h     Show this help message
 
-YAML to JSON options:
-
--e     Escape HTML in JSON output (ignored for JSON to YAML)
-
-JSON to YAML (-r) options:
-
--y     Use a YAML decoder instead of a JSON decoder to parse JSON
--k     Attempt to parse keys as JSON objects/numbers
 `
 
 func main() {
@@ -42,7 +45,8 @@ func main() {
 func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) {
 	config, err := args.Parse(osArgs[1:]...)
 	if err != nil {
-		failMsg(stderr, err)
+		fmt.Fprintf(stderr, HelpMsg, os.Args[0])
+		fmt.Fprintf(stderr, "Error: %s\n", err)
 		return 1
 	}
 	if config.Help {
@@ -52,26 +56,46 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 
 	input, err := ioutil.ReadAll(stdin)
 	if err != nil {
-		failMsg(stderr, err)
+		fmt.Fprintf(stderr, "Error: %s\n", err)
 		return 1
 	}
 
-	convertFunc := convertYAMLToJSON
-	if config.Reverse {
-		convertFunc = convertJSONToYAML
+	var from func([]byte, *args.Config) (interface{}, error)
+	switch config.From {
+	case args.YAML:
+		from = fromYAML
+	case args.TOML:
+		from = fromTOML
+	case args.JSON:
+		from = fromJSON
 	}
 
-	output, err := convertFunc(input, config)
+	var to func(interface{}, *args.Config) ([]byte, error)
+	switch config.To {
+	case args.YAML:
+		to = toYAML
+	case args.TOML:
+		to = toTOML
+	case args.JSON:
+		to = toJSON
+	}
+
+	// TODO: if from == to, don't do yaml decode/encode to avoid stringifying the keys
+	rep, err := from(input, config)
 	if err != nil {
-		failMsg(stderr, err)
+		fmt.Fprintf(stderr, "Error: %s\n", err)
+		return 1
+	}
+	output, err := to(rep, config)
+	if err != nil {
+		fmt.Fprintf(stderr, "Error: %s\n", err)
 		return 1
 	}
 	fmt.Fprintf(stdout, "%s", output)
-
 	return 0
 }
 
-func convertYAMLToJSON(input []byte, config *args.Config) ([]byte, error) {
+func fromYAML(input []byte, config *args.Config) (interface{}, error) {
 	if len(bytes.TrimSpace(input)) == 0 {
 		return nil, nil
 	}
@@ -90,61 +114,49 @@ func convertYAMLToJSON(input []byte, config *args.Config) ([]byte, error) {
 	}
 
 	decoder.Unmarshal = goyaml.Unmarshal
-	if config.CandiedYAML {
-		decoder.Unmarshal = candiedyaml.Unmarshal
-	}
-
-	data, err := decoder.JSON(input)
-	if err != nil {
-		return nil, err
-	}
-	output := &bytes.Buffer{}
-	encoder := json.NewEncoder(output)
-	encoder.SetEscapeHTML(config.EscapeHTML)
-	if err := encoder.Encode(data); err != nil {
-		return nil, err
-	}
-	return output.Bytes(), nil
+	return decoder.JSON(input)
 }
 
-func convertJSONToYAML(input []byte, config *args.Config) ([]byte, error) {
+func fromTOML(input []byte, _ *args.Config) (interface{}, error) {
 	if len(bytes.TrimSpace(input)) == 0 {
 		return nil, nil
 	}
-	encoder := &yaml.Encoder{}
+	var data interface{}
+	return data, toml.Unmarshal(input, &data)
+}
 
+func fromJSON(input []byte, _ *args.Config) (interface{}, error) {
+	if len(bytes.TrimSpace(input)) == 0 {
+		return nil, nil
+	}
+	var data interface{}
+	return data, json.Unmarshal(input, &data)
+}
+
+func toYAML(input interface{}, config *args.Config) ([]byte, error) {
+	encoder := &yaml.Encoder{}
 	if config.FloatStrings {
 		encoder.NaN = "NaN"
 		encoder.PosInf = "Infinity"
 		encoder.NegInf = "-Infinity"
 	}
-
 	encoder.Marshal = goyaml.Marshal
-	if config.CandiedYAML {
-		encoder.Marshal = candiedyaml.Marshal
-	}
-
-	unmarshalFunc := json.Unmarshal
-	if config.JSONAsYAML {
-		unmarshalFunc = goyaml.Unmarshal
-		if config.CandiedYAML {
-			unmarshalFunc = candiedyaml.Unmarshal
-		}
-	}
-
 	if config.JSONKeys {
-		encoder.KeyUnmarshal = unmarshalFunc
+		encoder.KeyUnmarshal = json.Unmarshal
 	}
-
-	var data interface{}
-	if err := unmarshalFunc(input, &data); err != nil {
-		return nil, err
-	}
-
-	return encoder.YAML(data)
+	return encoder.YAML(input)
 }
 
-func failMsg(out io.Writer, err error) {
-	fmt.Fprintf(out, "Error: %s\n", err)
-	fmt.Fprintf(out, HelpMsg, os.Args[0])
+func toTOML(input interface{}, _ *args.Config) ([]byte, error) {
+	output := &bytes.Buffer{}
+	err := toml.NewEncoder(output).Encode(input)
+	return output.Bytes(), err
+}
+
+func toJSON(input interface{}, config *args.Config) ([]byte, error) {
+	output := &bytes.Buffer{}
+	encoder := json.NewEncoder(output)
+	encoder.SetEscapeHTML(config.EscapeHTML)
+	err := encoder.Encode(input)
+	return output.Bytes(), err
 }
