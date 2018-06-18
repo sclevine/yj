@@ -33,7 +33,6 @@ Convert YAML, TOML, or JSON to YAML, TOML, or JSON.
 -n     Do not covert Infinity, -Infinity, and NaN to/from strings
 -e     Escape HTML (JSON output only)
 -k     Attempt to parse keys as objects or numbers types (YAML output only)
--i     Indent TOML (TOML output only)
 -h     Show this help message
 
 `
