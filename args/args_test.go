@@ -43,6 +43,7 @@ func TestParseWithInvalidFlags(t *testing.T) {
 }
 
 func assertEqual(t *testing.T, a, b interface{}) {
+	t.Helper()
 	if !reflect.DeepEqual(a, b) {
 		t.Fatalf("\nAssertion failed:\n\t%#v\nnot equal to\n\t%#v\n", a, b)
 	}
