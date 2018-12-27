@@ -19,10 +19,12 @@ const (
 	YAML Encoding = FlagYAML
 	TOML Encoding = FlagTOML
 	JSON Encoding = FlagJSON
+	HCL  Encoding = FlagHCL
 
 	FlagYAML           = 'y'
 	FlagTOML           = 't'
 	FlagJSON           = 'j'
+	FlagHCL            = 'c'
 	FlagReverse        = 'r'
 	FlagNoFloatStrings = 'n'
 	FlagEscapeHTML     = 'e'
@@ -58,7 +60,7 @@ func Parse(args ...string) (*Config, error) {
 
 func flagFilter(r rune) rune {
 	switch r {
-	case FlagYAML, FlagTOML, FlagJSON, FlagReverse,
+	case FlagYAML, FlagTOML, FlagJSON, FlagHCL, FlagReverse,
 		FlagEscapeHTML, FlagNoFloatStrings, FlagJSONKeys,
 		FlagHelp, '\t', ' ', '-':
 		return -1
@@ -69,7 +71,7 @@ func flagFilter(r rune) rune {
 func transform(s string) (from, to Encoding) {
 	for _, r := range s {
 		switch r {
-		case FlagYAML, FlagTOML, FlagJSON:
+		case FlagYAML, FlagTOML, FlagJSON, FlagHCL:
 			from, to = to, Encoding(r)
 		case FlagReverse:
 			from, to = JSON, YAML

@@ -11,25 +11,36 @@ import (
 
 	goyaml "gopkg.in/yaml.v2"
 
+	"github.com/BurntSushi/toml"
 	"github.com/sclevine/yj/args"
 	"github.com/sclevine/yj/yaml"
-	"github.com/BurntSushi/toml"
+
+	"github.com/hashicorp/hcl"
+	"github.com/hashicorp/hcl/hcl/printer"
+	jsonParser "github.com/hashicorp/hcl/json/parser"
 )
 
-const HelpMsg = `Usage: %s [-][ytjrnekh]
+const HelpMsg = `Usage: %s [-][ytjcrnekh]
 
-Convert YAML, TOML, or JSON to YAML, TOML, or JSON.
+Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
 
 -x[x]  Convert using stdin. Valid options:
           -yj, -y = YAML to JSON (default)
           -yy     = YAML to YAML
           -yt     = YAML to TOML
+          -yc     = YAML to HCL
           -tj, -t = TOML to JSON
           -ty     = TOML to YAML
           -tt     = TOML to TOML
+          -tc     = TOML to HCL
           -jj     = JSON to JSON
           -jy, -r = JSON to YAML
           -jt     = JSON to TOML
+          -jc     = JSON to HCL
+          -cy     = HCL to YAML
+          -ct     = HCL to TOML
+          -cj  -c = HCL to JSON
+          -cc     = HCL to HCL
 -n     Do not covert Infinity, -Infinity, and NaN to/from strings
 -e     Escape HTML (JSON output only)
 -k     Attempt to parse keys as objects or numbers types (YAML output only)
@@ -67,6 +78,8 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 		from = fromTOML
 	case args.JSON:
 		from = fromJSON
+    case args.HCL:
+        from = fromHCL
 	}
 
 	var to func(interface{}, *args.Config) ([]byte, error)
@@ -77,6 +90,8 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 		to = toTOML
 	case args.JSON:
 		to = toJSON
+    case args.HCL:
+        to = toHCL
 	}
 
 	// TODO: if from == to, don't do yaml decode/encode to avoid stringifying the keys
@@ -132,6 +147,14 @@ func fromJSON(input []byte, _ *args.Config) (interface{}, error) {
 	return data, json.Unmarshal(input, &data)
 }
 
+func fromHCL(input []byte, config *args.Config) (interface{}, error) {
+    if len(bytes.TrimSpace(input)) == 0 {
+        return nil, nil
+    }
+    var data interface{}
+    return data, hcl.Unmarshal(input, &data)
+}
+
 func toYAML(input interface{}, config *args.Config) ([]byte, error) {
 	encoder := &yaml.Encoder{}
 	if config.FloatStrings {
@@ -158,4 +181,18 @@ func toJSON(input interface{}, config *args.Config) ([]byte, error) {
 	encoder.SetEscapeHTML(config.EscapeHTML)
 	err := encoder.Encode(input)
 	return output.Bytes(), err
+}
+
+func toHCL(input interface{}, config *args.Config) ([]byte, error) {
+    output := &bytes.Buffer{}
+    encoder := json.NewEncoder(output)
+    encoder.SetEscapeHTML(config.EscapeHTML)
+    err := encoder.Encode(input)
+    if err != nil {
+        return nil, err
+    }
+
+    ast, err := jsonParser.Parse(output.Bytes())
+    err = printer.Fprint(os.Stdout, ast)
+    return nil, err
 }
