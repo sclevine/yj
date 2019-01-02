@@ -42,7 +42,7 @@ Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
           -cj  -c = HCL to JSON
           -cc     = HCL to HCL
 -n     Do not covert Infinity, -Infinity, and NaN to/from strings
--e     Escape HTML (JSON output only)
+-e     Escape HTML (JSON/HCL output only)
 -k     Attempt to parse keys as objects or numbers types (YAML output only)
 -h     Show this help message
 
