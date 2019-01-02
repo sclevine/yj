@@ -78,8 +78,8 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 		from = fromTOML
 	case args.JSON:
 		from = fromJSON
-    case args.HCL:
-        from = fromHCL
+	case args.HCL:
+		from = fromHCL
 	}
 
 	var to func(interface{}, *args.Config) ([]byte, error)
@@ -90,8 +90,8 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 		to = toTOML
 	case args.JSON:
 		to = toJSON
-    case args.HCL:
-        to = toHCL
+	case args.HCL:
+		to = toHCL
 	}
 
 	// TODO: if from == to, don't do yaml decode/encode to avoid stringifying the keys
@@ -148,11 +148,11 @@ func fromJSON(input []byte, _ *args.Config) (interface{}, error) {
 }
 
 func fromHCL(input []byte, config *args.Config) (interface{}, error) {
-    if len(bytes.TrimSpace(input)) == 0 {
-        return nil, nil
-    }
-    var data interface{}
-    return data, hcl.Unmarshal(input, &data)
+	if len(bytes.TrimSpace(input)) == 0 {
+		return nil, nil
+	}
+	var data interface{}
+	return data, hcl.Unmarshal(input, &data)
 }
 
 func toYAML(input interface{}, config *args.Config) ([]byte, error) {
@@ -184,15 +184,17 @@ func toJSON(input interface{}, config *args.Config) ([]byte, error) {
 }
 
 func toHCL(input interface{}, config *args.Config) ([]byte, error) {
-    output := &bytes.Buffer{}
-    encoder := json.NewEncoder(output)
-    encoder.SetEscapeHTML(config.EscapeHTML)
-    err := encoder.Encode(input)
-    if err != nil {
-        return nil, err
-    }
+	json, err := toJSON(input, config)
+	if err != nil {
+		return nil, err
+	}
 
-    ast, err := jsonParser.Parse(output.Bytes())
-    err = printer.Fprint(os.Stdout, ast)
-    return nil, err
+	ast, err := jsonParser.Parse(json)
+	if err != nil {
+		return nil, err
+	}
+
+	output := &bytes.Buffer{}
+	err = printer.Fprint(output, ast)
+	return output.Bytes(), err
 }
