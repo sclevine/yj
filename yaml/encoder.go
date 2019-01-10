@@ -31,7 +31,7 @@ func (e *Encoder) yamlify(in interface{}) interface{} {
 			out[e.yamlifyKey(k)] = e.yamlify(v)
 		}
 		return out
-	case map[interface{}]interface{}: // test!
+	case map[interface{}]interface{}: // TODO: test
 		out := map[interface{}]interface{}{}
 		for k, v := range in {
 			switch k := k.(type) {
@@ -43,6 +43,12 @@ func (e *Encoder) yamlify(in interface{}) interface{} {
 		}
 		return out
 	case []interface{}:
+		out := make([]interface{}, len(in))
+		for i, v := range in {
+			out[i] = e.yamlify(v)
+		}
+		return out
+	case []map[string]interface{}: // TODO: test
 		out := make([]interface{}, len(in))
 		for i, v := range in {
 			out[i] = e.yamlify(v)

@@ -15,6 +15,20 @@ type Config struct {
 
 type Encoding rune
 
+func (e Encoding) String() string {
+	switch e {
+	case FlagYAML:
+		return "YAML"
+	case FlagTOML:
+		return "TOML"
+	case FlagJSON:
+		return "JSON"
+	case FlagHCL:
+		return "HCL"
+	}
+	return ""
+}
+
 const (
 	YAML Encoding = FlagYAML
 	TOML Encoding = FlagTOML

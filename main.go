@@ -42,7 +42,7 @@ Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
           -cj  -c = HCL to JSON
           -cc     = HCL to HCL
 -n     Do not covert Infinity, -Infinity, and NaN to/from strings
--e     Escape HTML (JSON/HCL output only)
+-e     Escape HTML (JSON output only)
 -k     Attempt to parse keys as objects or numbers types (YAML output only)
 -h     Show this help message
 
@@ -97,12 +97,12 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 	// TODO: if from == to, don't do yaml decode/encode to avoid stringifying the keys
 	rep, err := from(input, config)
 	if err != nil {
-		fmt.Fprintf(stderr, "Error: %s\n", err)
+		fmt.Fprintf(stderr, "Error parsing %s: %s\n", config.From, err)
 		return 1
 	}
 	output, err := to(rep, config)
 	if err != nil {
-		fmt.Fprintf(stderr, "Error: %s\n", err)
+		fmt.Fprintf(stderr, "Error writing %s: %s\n", config.To, err)
 		return 1
 	}
 	fmt.Fprintf(stdout, "%s", output)
@@ -147,7 +147,7 @@ func fromJSON(input []byte, _ *args.Config) (interface{}, error) {
 	return data, json.Unmarshal(input, &data)
 }
 
-func fromHCL(input []byte, config *args.Config) (interface{}, error) {
+func fromHCL(input []byte, _ *args.Config) (interface{}, error) {
 	if len(bytes.TrimSpace(input)) == 0 {
 		return nil, nil
 	}
