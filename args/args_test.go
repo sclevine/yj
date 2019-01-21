@@ -5,44 +5,54 @@ import (
 	"testing"
 
 	"github.com/sclevine/yj/args"
+	"github.com/sclevine/yj/convert"
 )
 
 func TestParse(t *testing.T) {
 	config, err := args.Parse("-t", "y\tk-", "kn-k ", "h h", "")
-	assertEqual(t, err, nil)
-	assertEqual(t, config, &args.Config{
-		From:         args.TOML,
-		To:           args.YAML,
+	assertEq(t, err, nil)
+	_, ok := config.From.(convert.TOML)
+	assertEq(t, ok, true)
+	yaml, ok := config.To.(convert.YAML)
+	assertEq(t, ok, true)
+	assertEq(t, yaml, convert.YAML{
 		EscapeHTML:   false,
 		FloatStrings: false,
 		JSONKeys:     true,
-		Help:         true,
 	})
+	assertEq(t, config.Help, true)
+
 	config, err = args.Parse("--\t\te  ", "")
-	assertEqual(t, err, nil)
-	assertEqual(t, config, &args.Config{
-		From:         args.YAML,
-		To:           args.JSON,
+	assertEq(t, err, nil)
+	yaml, ok = config.From.(convert.YAML)
+	assertEq(t, ok, true)
+	assertEq(t, yaml, convert.YAML{
 		EscapeHTML:   true,
 		FloatStrings: true,
 		JSONKeys:     false,
-		Help:         false,
 	})
+	json, ok := config.To.(convert.JSON)
+	assertEq(t, ok, true)
+	assertEq(t, json, convert.JSON{
+		EscapeHTML: true,
+	})
+	assertEq(t, config.Help, false)
+
 	// TODO: test more ytj combinations
 }
 
 func TestParseWithInvalidFlags(t *testing.T) {
 	_, err := args.Parse("-ar", "yb\te-", "kn-k ", "h ~ dh", "ab")
-	assertEqual(t, err.Error(), "invalid flags specified: a b ~ d a b")
+	assertEq(t, err.Error(), "invalid flags specified: a b ~ d a b")
 
 	_, err = args.Parse("k")
-	assertEqual(t, err.Error(), "flag -k only valid for YAML output")
+	assertEq(t, err.Error(), "flag -k only valid for YAML output")
 
 	_, err = args.Parse("ejy")
-	assertEqual(t, err.Error(), "flag -e only valid for JSON output")
+	assertEq(t, err.Error(), "flag -e only valid for JSON output")
 }
 
-func assertEqual(t *testing.T, a, b interface{}) {
+func assertEq(t *testing.T, a, b interface{}) {
 	t.Helper()
 	if !reflect.DeepEqual(a, b) {
 		t.Fatalf("\nAssertion failed:\n\t%#v\nnot equal to\n\t%#v\n", a, b)

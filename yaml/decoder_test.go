@@ -19,16 +19,16 @@ func TestDecoder(t *testing.T) {
 		NegInf:     F{"-Infinity"},
 	}
 	json, err := decoder.JSON([]byte("some YAML"))
-	assertEqual(t, err, nil)
-	assertEqual(t, json, jsonFixture)
-	assertEqual(t, mock.data, []byte("some YAML"))
+	assertEq(t, err, nil)
+	assertEq(t, json, jsonFixture)
+	assertEq(t, mock.data, []byte("some YAML"))
 }
 
 func TestDecoderWhenYAMLIsInvalid(t *testing.T) {
 	mock := &mockYAML{err: errors.New("some error")}
 	decoder := &yaml.Decoder{Unmarshal: mock.unmarshal}
 	_, err := decoder.JSON(nil)
-	assertEqual(t, err.Error(), "some error")
+	assertEq(t, err.Error(), "some error")
 }
 
 func TestDecoderWhenYAMLHasInvalidTypes(t *testing.T) {
@@ -37,19 +37,19 @@ func TestDecoderWhenYAMLHasInvalidTypes(t *testing.T) {
 
 	mock.value = map[int]int{}
 	_, err := decoder.JSON(nil)
-	assertEqual(t, err.Error(), "unexpected type: map[int]int{}")
+	assertEq(t, err.Error(), "unexpected type: map[int]int{}")
 
 	mock.value = [0]int{}
 	_, err = decoder.JSON(nil)
-	assertEqual(t, err.Error(), "unexpected type: [0]int{}")
+	assertEq(t, err.Error(), "unexpected type: [0]int{}")
 
 	mock.value = []int{}
 	_, err = decoder.JSON(nil)
-	assertEqual(t, err.Error(), "unexpected type: []int{}")
+	assertEq(t, err.Error(), "unexpected type: []int{}")
 
 	mock.value = float32(0)
 	_, err = decoder.JSON(nil)
-	assertEqual(t, err.Error(), "unexpected type: 0")
+	assertEq(t, err.Error(), "unexpected type: 0")
 }
 
 func TestDecoderWhenYAMLHasInvalidKeys(t *testing.T) {
@@ -61,5 +61,5 @@ func TestDecoderWhenYAMLHasInvalidKeys(t *testing.T) {
 		KeyMarshal: json.Marshal,
 	}
 	_, err := decoder.JSON(nil)
-	assertEqual(t, err.Error(), "json: unsupported value: NaN")
+	assertEq(t, err.Error(), "json: unsupported value: NaN")
 }

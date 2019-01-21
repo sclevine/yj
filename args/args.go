@@ -3,38 +3,16 @@ package args
 import (
 	"fmt"
 	"strings"
+
+	"github.com/sclevine/yj/convert"
 )
 
 type Config struct {
-	From, To     Encoding
-	EscapeHTML   bool
-	FloatStrings bool
-	JSONKeys     bool
-	Help         bool
-}
-
-type Encoding rune
-
-func (e Encoding) String() string {
-	switch e {
-	case FlagYAML:
-		return "YAML"
-	case FlagTOML:
-		return "TOML"
-	case FlagJSON:
-		return "JSON"
-	case FlagHCL:
-		return "HCL"
-	}
-	return ""
+	From, To convert.Encoding
+	Help     bool
 }
 
 const (
-	YAML Encoding = FlagYAML
-	TOML Encoding = FlagTOML
-	JSON Encoding = FlagJSON
-	HCL  Encoding = FlagHCL
-
 	FlagYAML           = 'y'
 	FlagTOML           = 't'
 	FlagJSON           = 'j'
@@ -54,19 +32,14 @@ func Parse(args ...string) (*Config, error) {
 		return nil, fmt.Errorf("invalid flags specified: %s", strings.Join(invalidArgs, " "))
 	}
 
+	from, to, err := transform(flatArgs)
+	if err != nil {
+		return nil, err
+	}
 	config := &Config{
-		EscapeHTML:   strings.ContainsRune(flatArgs, FlagEscapeHTML),
-		FloatStrings: !strings.ContainsRune(flatArgs, FlagNoFloatStrings),
-		JSONKeys:     strings.ContainsRune(flatArgs, FlagJSONKeys),
-		Help:         strings.ContainsRune(flatArgs, FlagHelp),
-	}
-	config.From, config.To = transform(flatArgs)
-
-	if config.JSONKeys && config.To != YAML {
-		return nil, fmt.Errorf("flag -%c only valid for YAML output", FlagJSONKeys)
-	}
-	if config.EscapeHTML && config.To != JSON {
-		return nil, fmt.Errorf("flag -%c only valid for JSON output", FlagEscapeHTML)
+		From: from,
+		To:   to,
+		Help: strings.ContainsRune(flatArgs, FlagHelp),
 	}
 
 	return config, nil
@@ -82,20 +55,49 @@ func flagFilter(r rune) rune {
 	return r
 }
 
-func transform(s string) (from, to Encoding) {
+func transform(s string) (from, to convert.Encoding, err error) {
+	escapeHTML := strings.ContainsRune(s, FlagEscapeHTML)
+	floatStrings := !strings.ContainsRune(s, FlagNoFloatStrings)
+	jsonKeys := strings.ContainsRune(s, FlagJSONKeys)
+
+	yaml := convert.YAML{
+		FloatStrings: floatStrings,
+		JSONKeys:     jsonKeys,
+		EscapeHTML:   escapeHTML,
+	}
+	toml := convert.TOML{}
+	json := convert.JSON{
+		EscapeHTML: escapeHTML,
+	}
+	hcl := convert.HCL{}
+
 	for _, r := range s {
 		switch r {
-		case FlagYAML, FlagTOML, FlagJSON, FlagHCL:
-			from, to = to, Encoding(r)
+		case FlagYAML:
+			from, to = to, yaml
+		case FlagTOML:
+			from, to = to, toml
+		case FlagJSON:
+			from, to = to, json
+		case FlagHCL:
+			from, to = to, hcl
 		case FlagReverse:
-			from, to = JSON, YAML
+			from, to = json, yaml
 		}
 	}
-	if from == 0 {
-		if to == 0 {
-			to = YAML
+	if from == nil {
+		if to == nil {
+			to = yaml
 		}
-		from, to = to, JSON
+		from, to = to, json
 	}
+
+	if _, toYAML := to.(convert.YAML); jsonKeys && !toYAML {
+		err = fmt.Errorf("flag -%c only valid for YAML output", FlagJSONKeys)
+	}
+	if _, toJSON := to.(convert.JSON); escapeHTML && !toJSON {
+		err = fmt.Errorf("flag -%c only valid for JSON output", FlagEscapeHTML)
+	}
+
 	return
 }

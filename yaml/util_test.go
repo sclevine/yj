@@ -15,11 +15,11 @@ func TestDecoderPanics(t *testing.T) {
 
 	panicValue = errors.New("some error")
 	_, err := decoder.JSON(nil)
-	assertEqual(t, err.Error(), "some error")
+	assertEq(t, err.Error(), "some error")
 
 	panicValue = "some panic"
 	_, err = decoder.JSON(nil)
-	assertEqual(t, err.Error(), "unexpected failure: some panic")
+	assertEq(t, err.Error(), "unexpected failure: some panic")
 }
 
 func TestEncoderPanics(t *testing.T) {
@@ -30,9 +30,9 @@ func TestEncoderPanics(t *testing.T) {
 
 	panicValue = errors.New("some error")
 	_, err := encoder.YAML(nil)
-	assertEqual(t, err.Error(), "some error")
+	assertEq(t, err.Error(), "some error")
 
 	panicValue = "some panic"
 	_, err = encoder.YAML(nil)
-	assertEqual(t, err.Error(), "unexpected failure: some panic")
+	assertEq(t, err.Error(), "unexpected failure: some panic")
 }

@@ -22,7 +22,7 @@ Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
           -jc     = JSON to HCL
           -cy     = HCL to YAML
           -ct     = HCL to TOML
-          -cj  -c = HCL to JSON
+          -cj, -c = HCL to JSON
           -cc     = HCL to HCL
 -n     Do not covert Infinity, -Infinity, and NaN to/from strings
 -e     Escape HTML (JSON output only)

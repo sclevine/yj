@@ -22,7 +22,7 @@ func (m *mockYAML) marshal(v interface{}) ([]byte, error) {
 	return m.data, m.err
 }
 
-func assertEqual(t *testing.T, a, b interface{}) {
+func assertEq(t *testing.T, a, b interface{}) {
 	t.Helper()
 	if !reflect.DeepEqual(a, b) {
 		t.Fatalf("\nAssertion failed:\n\t%#v\nnot equal to\n\t%#v\n", a, b)
