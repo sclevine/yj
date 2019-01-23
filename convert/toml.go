@@ -1,7 +1,7 @@
 package convert
 
 import (
-	"bytes"
+	"io"
 
 	"github.com/BurntSushi/toml"
 )
@@ -12,13 +12,12 @@ func (TOML) String() string {
 	return "TOML"
 }
 
-func (TOML) Encode(input interface{}) ([]byte, error) {
-	output := &bytes.Buffer{}
-	err := toml.NewEncoder(output).Encode(input)
-	return output.Bytes(), err
+func (TOML) Encode(w io.Writer, in interface{}) error {
+	return toml.NewEncoder(w).Encode(in)
 }
 
-func (TOML) Decode(input []byte) (interface{}, error) {
+func (TOML) Decode(r io.Reader) (interface{}, error) {
 	var data interface{}
-	return data, toml.Unmarshal(input, &data)
+	_, err := toml.DecodeReader(r, &data)
+	return data, err
 }

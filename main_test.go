@@ -31,7 +31,7 @@ func TestRunWhenHelpFlagIsProvided(t *testing.T) {
 func TestRunWhenStdinIsInvalid(t *testing.T) {
 	stdout, stderr := &bytes.Buffer{}, &bytes.Buffer{}
 	assertEq(t, main.Run(&errReader{}, stdout, stderr, []string{""}), 1)
-	assertEq(t, strings.Contains(stderr.String(), "Error: some reader error"), true)
+	assertEq(t, strings.Contains(stderr.String(), "some reader error"), true)
 	assertEq(t, stdout.Len(), 0)
 }
 

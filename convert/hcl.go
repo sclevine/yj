@@ -2,6 +2,8 @@ package convert
 
 import (
 	"bytes"
+	"io"
+	"io/ioutil"
 
 	"github.com/hashicorp/hcl"
 	"github.com/hashicorp/hcl/hcl/printer"
@@ -14,23 +16,23 @@ func (HCL) String() string {
 	return "HCL"
 }
 
-func (HCL) Encode(input interface{}) ([]byte, error) {
-	json, err := JSON{}.Encode(input)
-	if err != nil {
-		return nil, err
+func (HCL) Encode(w io.Writer, in interface{}) error {
+	j := &bytes.Buffer{}
+	if err := (JSON{}).Encode(j, in); err != nil {
+		return err
 	}
-
-	ast, err := hcljson.Parse(json)
+	ast, err := hcljson.Parse(j.Bytes())
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	output := &bytes.Buffer{}
-	err = printer.Fprint(output, ast)
-	return output.Bytes(), err
+	return printer.Fprint(w, ast)
 }
 
-func (HCL) Decode(input []byte) (interface{}, error) {
+func (HCL) Decode(r io.Reader) (interface{}, error) {
+	in, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 	var data interface{}
-	return data, hcl.Unmarshal(input, &data)
+	return data, hcl.Unmarshal(in, &data)
 }

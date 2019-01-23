@@ -1,8 +1,8 @@
 package convert
 
 import (
-	"bytes"
 	"encoding/json"
+	"io"
 )
 
 type JSON struct {
@@ -13,15 +13,13 @@ func (JSON) String() string {
 	return "JSON"
 }
 
-func (j JSON) Encode(input interface{}) ([]byte, error) {
-	output := &bytes.Buffer{}
-	encoder := json.NewEncoder(output)
+func (j JSON) Encode(w io.Writer, in interface{}) error {
+	encoder := json.NewEncoder(w)
 	encoder.SetEscapeHTML(j.EscapeHTML)
-	err := encoder.Encode(input)
-	return output.Bytes(), err
+	return encoder.Encode(in)
 }
 
-func (JSON) Decode(input []byte) (interface{}, error) {
+func (JSON) Decode(r io.Reader) (interface{}, error) {
 	var data interface{}
-	return data, json.Unmarshal(input, &data)
+	return data, json.NewDecoder(r).Decode(&data)
 }

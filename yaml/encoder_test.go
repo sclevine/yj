@@ -11,41 +11,40 @@ import (
 )
 
 func TestEncoder(t *testing.T) {
-	mock := &mockYAML{data: []byte("some YAML")}
+	mock := &mockYAML{}
 	encoder := &yaml.Encoder{
-		Marshal:      mock.marshal,
+		EncodeYAML:   mock.encode,
 		KeyUnmarshal: keyUnmarshal,
 		NaN:          F{"NaN"},
 		PosInf:       F{"Infinity"},
 		NegInf:       F{"-Infinity"},
 	}
-	yaml, err := encoder.YAML(jsonFixture)
+	err := encoder.YAML(jsonFixture)
 	assertEq(t, err, nil)
 	assertEq(t, mock.value, yamlFixture)
-	assertEq(t, yaml, []byte("some YAML"))
 }
 
 func TestEncoderWhenYAMLIsInvalid(t *testing.T) {
 	mock := &mockYAML{err: errors.New("some error")}
-	encoder := &yaml.Encoder{Marshal: mock.marshal}
-	_, err := encoder.YAML(nil)
+	encoder := &yaml.Encoder{EncodeYAML: mock.encode}
+	err := encoder.YAML(nil)
 	assertEq(t, err.Error(), "some error")
 }
 
 func TestEncoderWhenYAMLHasInvalidTypes(t *testing.T) {
 	mock := &mockYAML{}
-	encoder := &yaml.Encoder{Marshal: mock.marshal}
+	encoder := &yaml.Encoder{EncodeYAML: mock.encode}
 
-	_, err := encoder.YAML(map[int]int{})
+	err := encoder.YAML(map[int]int{})
 	assertEq(t, err.Error(), "unexpected type: map[int]int{}")
 
-	_, err = encoder.YAML([0]int{})
+	err = encoder.YAML([0]int{})
 	assertEq(t, err.Error(), "unexpected type: [0]int{}")
 
-	_, err = encoder.YAML([]int{})
+	err = encoder.YAML([]int{})
 	assertEq(t, err.Error(), "unexpected type: []int{}")
 
-	_, err = encoder.YAML(float32(0))
+	err = encoder.YAML(float32(0))
 	assertEq(t, err.Error(), "unexpected type: 0")
 }
 

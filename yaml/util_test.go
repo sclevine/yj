@@ -9,30 +9,30 @@ import (
 
 func TestDecoderPanics(t *testing.T) {
 	var panicValue interface{}
-	decoder := &yaml.Decoder{Unmarshal: func(_ []byte, _ interface{}) error {
+	decoder := &yaml.Decoder{DecodeYAML: func(_ interface{}) error {
 		panic(panicValue)
 	}}
 
 	panicValue = errors.New("some error")
-	_, err := decoder.JSON(nil)
+	_, err := decoder.JSON()
 	assertEq(t, err.Error(), "some error")
 
 	panicValue = "some panic"
-	_, err = decoder.JSON(nil)
+	_, err = decoder.JSON()
 	assertEq(t, err.Error(), "unexpected failure: some panic")
 }
 
 func TestEncoderPanics(t *testing.T) {
 	var panicValue interface{}
-	encoder := &yaml.Encoder{Marshal: func(_ interface{}) ([]byte, error) {
+	encoder := &yaml.Encoder{EncodeYAML: func(_ interface{}) error {
 		panic(panicValue)
 	}}
 
 	panicValue = errors.New("some error")
-	_, err := encoder.YAML(nil)
+	err := encoder.YAML(nil)
 	assertEq(t, err.Error(), "some error")
 
 	panicValue = "some panic"
-	_, err = encoder.YAML(nil)
+	err = encoder.YAML(nil)
 	assertEq(t, err.Error(), "unexpected failure: some panic")
 }

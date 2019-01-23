@@ -1,8 +1,9 @@
 package convert
 
-// TODO: []byte -> io.ReadCloser / io.Writer
+import "io"
+
 type Encoding interface {
 	String() string
-	Encode(input interface{}) ([]byte, error)
-	Decode(input []byte) (interface{}, error)
+	Encode(w io.Writer, in interface{}) error
+	Decode(r io.Reader) (interface{}, error)
 }

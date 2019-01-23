@@ -2,6 +2,7 @@ package convert
 
 import (
 	"encoding/json"
+	"io"
 	"math"
 
 	goyaml "gopkg.in/yaml.v2"
@@ -19,22 +20,24 @@ func (YAML) String() string {
 	return "YAML"
 }
 
-func (y YAML) Encode(input interface{}) ([]byte, error) {
-	encoder := &yaml.Encoder{}
+func (y YAML) Encode(w io.Writer, in interface{}) error {
+	encoder := &yaml.Encoder{
+		EncodeYAML: goyaml.NewEncoder(w).Encode,
+	}
 	if y.FloatStrings {
 		encoder.NaN = "NaN"
 		encoder.PosInf = "Infinity"
 		encoder.NegInf = "-Infinity"
 	}
-	encoder.Marshal = goyaml.Marshal
 	if y.JSONKeys {
 		encoder.KeyUnmarshal = json.Unmarshal
 	}
-	return encoder.YAML(input)
+	return encoder.YAML(in)
 }
 
-func (y YAML) Decode(input []byte) (interface{}, error) {
+func (y YAML) Decode(r io.Reader) (interface{}, error) {
 	decoder := &yaml.Decoder{
+		DecodeYAML: goyaml.NewDecoder(r).Decode,
 		KeyMarshal: (&yaml.JSON{EscapeHTML: y.EscapeHTML}).Marshal,
 
 		NaN:    (*float64)(nil),
@@ -47,7 +50,5 @@ func (y YAML) Decode(input []byte) (interface{}, error) {
 		decoder.PosInf = "Infinity"
 		decoder.NegInf = "-Infinity"
 	}
-
-	decoder.Unmarshal = goyaml.Unmarshal
-	return decoder.JSON(input)
+	return decoder.JSON()
 }

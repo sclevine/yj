@@ -7,7 +7,7 @@ import (
 )
 
 type Encoder struct {
-	Marshal      func(interface{}) ([]byte, error)
+	EncodeYAML   func(interface{}) error
 	KeyUnmarshal func([]byte, interface{}) error
 
 	// If set, these will be converted to floats.
@@ -18,9 +18,9 @@ type Encoder struct {
 // Special string keys from the Decoder are accounted for.
 // YAML objects are accepted, as long as represent valid JSON.
 // Internal structs are currently passed through unmodified.
-func (e *Encoder) YAML(json interface{}) (yaml []byte, err error) {
+func (e *Encoder) YAML(json interface{}) (err error) {
 	defer catchFailure(&err)
-	return e.Marshal(e.yamlify(json))
+	return e.EncodeYAML(e.yamlify(json))
 }
 
 func (e *Encoder) yamlify(in interface{}) interface{} {

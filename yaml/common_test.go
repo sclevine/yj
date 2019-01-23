@@ -6,20 +6,18 @@ import (
 )
 
 type mockYAML struct {
-	data  []byte
 	value interface{}
 	err   error
 }
 
-func (m *mockYAML) unmarshal(data []byte, v interface{}) error {
-	m.data = data
+func (m *mockYAML) decode(v interface{}) error {
 	*v.(*interface{}) = m.value
 	return m.err
 }
 
-func (m *mockYAML) marshal(v interface{}) ([]byte, error) {
+func (m *mockYAML) encode(v interface{}) error {
 	m.value = v
-	return m.data, m.err
+	return m.err
 }
 
 func assertEq(t *testing.T, a, b interface{}) {

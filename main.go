@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 )
 
@@ -52,27 +50,14 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 		return 0
 	}
 
-	input, err := ioutil.ReadAll(stdin)
-	if err != nil {
-		fmt.Fprintf(stderr, "Error: %s\n", err)
-		return 1
-	}
-
-	if len(bytes.TrimSpace(input)) == 0 {
-		return 0
-	}
-
-	// TODO: if from == to, don't do yaml decode/encode to avoid stringifying the keys
-	rep, err := config.From.Decode(input)
+	rep, err := config.From.Decode(stdin)
 	if err != nil {
 		fmt.Fprintf(stderr, "Error parsing %s: %s\n", config.From, err)
 		return 1
 	}
-	output, err := config.To.Encode(rep)
-	if err != nil {
+	if err := config.To.Encode(stdout, rep); err != nil {
 		fmt.Fprintf(stderr, "Error writing %s: %s\n", config.To, err)
 		return 1
 	}
-	fmt.Fprintf(stdout, "%s", output)
 	return 0
 }

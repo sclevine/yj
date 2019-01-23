@@ -7,7 +7,7 @@ import (
 )
 
 type Decoder struct {
-	Unmarshal  func([]byte, interface{}) error
+	DecodeYAML func(interface{}) error
 	KeyMarshal func(interface{}) ([]byte, error)
 
 	// If not set, input YAML must not contain these.
@@ -16,10 +16,10 @@ type Decoder struct {
 }
 
 // JSON decodes YAML into an object that marshals cleanly into JSON.
-func (d *Decoder) JSON(yaml []byte) (json interface{}, err error) {
+func (d *Decoder) JSON() (json interface{}, err error) {
 	defer catchFailure(&err)
 	var data interface{}
-	if err := d.Unmarshal(yaml, &data); err != nil {
+	if err := d.DecodeYAML(&data); err != nil {
 		return nil, err
 	}
 	return d.jsonify(data), nil
