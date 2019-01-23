@@ -10,7 +10,7 @@ import (
 
 const HelpMsg = `Usage: %s [-][ytjcrnekh]
 
-Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
+Convert between YAML, TOML, JSON, and HCL.
 
 -x[x]  Convert using stdin. Valid options:
           -yj, -y = YAML to JSON (default)

@@ -3,13 +3,13 @@
 [![Build Status](https://travis-ci.org/sclevine/yj.svg?branch=master)](https://travis-ci.org/sclevine/yj)
 [![GoDoc](https://godoc.org/github.com/sclevine/yj?status.svg)](https://godoc.org/github.com/sclevine/yj)
 
-Converts between YAML, TOML, JSON, and HCL.
+Convert between YAML, TOML, JSON, and HCL.
 
 ```
 opal:yj stephen$ yj -h
 Usage: yj [-][ytjcrnekh]
 
-Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
+Convert between YAML, TOML, JSON, and HCL.
 
 -x[x]  Convert using stdin. Valid options:
           -yj, -y = YAML to JSON (default)
