@@ -52,6 +52,9 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 
 	rep, err := config.From.Decode(stdin)
 	if err != nil {
+		if err.Error() == "EOF" {
+			return 0
+		}
 		fmt.Fprintf(stderr, "Error parsing %s: %s\n", config.From, err)
 		return 1
 	}
