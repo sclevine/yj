@@ -1,0 +1,20 @@
+## For TOML v0.5.0:
+#-Infinity = -inf
+#Infinity = inf
+#"+Infinity" = +inf
+#-NaN = -nan
+#NaN = nan
+#"+NaN" = +nan
+
+"\"key\"" = "\"value\""
+0 = 0
+1 = 1.0
+"1.1" = 1.1
+"<" = ">"
+date = 2006-01-02T15:04:05-07:00
+key-number-list = [0.0, 1.0, 1.1]
+key-string-list = ["a", "b"]
+
+[[key-obj-list]]
+  key-number = 2
+  key-string = "value-string"

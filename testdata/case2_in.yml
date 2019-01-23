@@ -1,0 +1,20 @@
+-.inf: -.inf
+0: 0
+1.0: 1.0
+1.1: 1.1
+.inf: .inf
+.nan: .nan
+<: '>'
+'"key"': '"value"'
+key-null: null
+key-number-list:
+- !!float 0
+- !!float 1
+- 1.0
+- 1.1
+key-obj-list:
+- key-number: 2
+  key-string: value-string
+key-string-list:
+- a
+- b

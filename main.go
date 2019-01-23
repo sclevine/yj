@@ -6,8 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-
-	"github.com/sclevine/yj/args"
 )
 
 const HelpMsg = `Usage: %s [-][ytjcrnekh]
@@ -31,9 +29,9 @@ Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
           -ct     = HCL to TOML
           -cj, -c = HCL to JSON
           -cc     = HCL to HCL
--n     Do not covert Infinity, -Infinity, and NaN to/from strings
--e     Escape HTML (JSON output only)
--k     Attempt to parse keys as objects or numbers types (YAML output only)
+-n     Do not covert inf, -inf, and NaN to/from strings (YAML in/out only)
+-e     Escape HTML (JSON out only)
+-k     Attempt to parse keys as objects or numbers types (YAML out only)
 -h     Show this help message
 
 `
@@ -43,7 +41,7 @@ func main() {
 }
 
 func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) {
-	config, err := args.Parse(osArgs[1:]...)
+	config, err := Parse(osArgs[1:]...)
 	if err != nil {
 		fmt.Fprintf(stderr, HelpMsg, os.Args[0])
 		fmt.Fprintf(stderr, "Error: %s\n", err)

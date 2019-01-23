@@ -1,15 +1,14 @@
-package args_test
+package main_test
 
 import (
-	"reflect"
 	"testing"
 
-	"github.com/sclevine/yj/args"
+	"github.com/sclevine/yj"
 	"github.com/sclevine/yj/convert"
 )
 
 func TestParse(t *testing.T) {
-	config, err := args.Parse("-t", "y\tk-", "kn-k ", "h h", "")
+	config, err := main.Parse("-t", "y\tk-", "kn-k ", "h h", "")
 	assertEq(t, err, nil)
 	_, ok := config.From.(convert.TOML)
 	assertEq(t, ok, true)
@@ -22,7 +21,7 @@ func TestParse(t *testing.T) {
 	})
 	assertEq(t, config.Help, true)
 
-	config, err = args.Parse("--\t\te  ", "")
+	config, err = main.Parse("--\t\te  ", "")
 	assertEq(t, err, nil)
 	yaml, ok = config.From.(convert.YAML)
 	assertEq(t, ok, true)
@@ -38,23 +37,16 @@ func TestParse(t *testing.T) {
 	})
 	assertEq(t, config.Help, false)
 
-	// TODO: test more ytj combinations
+	// TODO: test more ytjc combinations
 }
 
 func TestParseWithInvalidFlags(t *testing.T) {
-	_, err := args.Parse("-ar", "yb\te-", "kn-k ", "h ~ dh", "ab")
+	_, err := main.Parse("-ar", "yb\te-", "kn-k ", "h ~ dh", "ab")
 	assertEq(t, err.Error(), "invalid flags specified: a b ~ d a b")
 
-	_, err = args.Parse("k")
+	_, err = main.Parse("k")
 	assertEq(t, err.Error(), "flag -k only valid for YAML output")
 
-	_, err = args.Parse("ejy")
+	_, err = main.Parse("ejy")
 	assertEq(t, err.Error(), "flag -e only valid for JSON output")
-}
-
-func assertEq(t *testing.T, a, b interface{}) {
-	t.Helper()
-	if !reflect.DeepEqual(a, b) {
-		t.Fatalf("\nAssertion failed:\n\t%#v\nnot equal to\n\t%#v\n", a, b)
-	}
 }

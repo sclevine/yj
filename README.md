@@ -1,5 +1,9 @@
 # yj
-CLI - YAML &lt;-> TOML &lt;-> JSON &lt;-> HCL
+
+[![Build Status](https://travis-ci.org/sclevine/yj.svg?branch=master)](https://travis-ci.org/sclevine/yj)
+[![GoDoc](https://godoc.org/github.com/sclevine/yj?status.svg)](https://godoc.org/github.com/sclevine/yj)
+
+Converts between YAML, TOML, JSON, and HCL.
 
 ```
 opal:yj stephen$ yj -h
@@ -24,8 +28,8 @@ Convert YAML, TOML, JSON, or HCL to YAML, TOML, JSON, or HCL.
           -ct     = HCL to TOML
           -cj, -c = HCL to JSON
           -cc     = HCL to HCL
--n     Do not covert Infinity, -Infinity, and NaN to/from strings
--e     Escape HTML (JSON output only)
--k     Attempt to parse keys as objects or numbers types (YAML output only)
+-n     Do not covert inf, -inf, and NaN to/from strings (YAML in/out only)
+-e     Escape HTML (JSON out only)
+-k     Attempt to parse keys as objects or numbers types (YAML out only)
 -h     Show this help message
 ```

@@ -1,0 +1,14 @@
+language: go
+go:
+- 1.11.x
+env:
+  global:
+  - GO111MODULE=on
+cache:
+  directories:
+  - $GOPATH/pkg/mod
+script:
+- test -z $(go fmt ./...)
+- go vet ./...
+- go build .
+- go test -v ./...

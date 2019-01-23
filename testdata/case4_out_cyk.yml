@@ -1,0 +1,28 @@
+-.inf: -.inf
+0: 0
+1: 1
+.inf: .inf
+.nan: null
+1.1: 1.1
+? .nan: null
+: .nan
+? -.inf: -.inf
+: -.inf
+? .inf: .inf
+: .inf
+? key: value
+: value
+? <: '>'
+: '>'
+<: '>'
+key: '"value"'
+key-number-list:
+- 0
+- 1
+- 1.1
+key-obj-list:
+- key-number: 2
+  key-string: value-string
+key-string-list:
+- a
+- b

@@ -1,4 +1,4 @@
-package args
+package main
 
 import (
 	"fmt"
@@ -98,6 +98,8 @@ func transform(s string) (from, to convert.Encoding, err error) {
 	if _, toJSON := to.(convert.JSON); escapeHTML && !toJSON {
 		err = fmt.Errorf("flag -%c only valid for JSON output", FlagEscapeHTML)
 	}
+
+	// TODO: validate -n has YAML input or output flag
 
 	return
 }
