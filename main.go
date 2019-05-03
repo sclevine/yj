@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-const HelpMsg = `Usage: %s [-][ytjcrnekh]
+const HelpMsg = `Usage: %s [-][ytjcrneikh]
 
 Convert between YAML, TOML, JSON, and HCL.
 
@@ -29,6 +29,7 @@ Convert between YAML, TOML, JSON, and HCL.
           -cc     = HCL to HCL
 -n     Do not covert inf, -inf, and NaN to/from strings (YAML in/out only)
 -e     Escape HTML (JSON out only)
+-i     Indent output (JSON out only)
 -k     Attempt to parse keys as objects or numbers types (YAML out only)
 -h     Show this help message
 
