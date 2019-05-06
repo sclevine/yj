@@ -6,14 +6,20 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type TOML struct{}
+type TOML struct{
+	Indent bool
+}
 
 func (TOML) String() string {
 	return "TOML"
 }
 
-func (TOML) Encode(w io.Writer, in interface{}) error {
-	return toml.NewEncoder(w).Encode(in)
+func (t TOML) Encode(w io.Writer, in interface{}) error {
+	enc := toml.NewEncoder(w)
+	if !t.Indent {
+		enc.Indent = ""
+	}
+	return enc.Encode(in)
 }
 
 func (TOML) Decode(r io.Reader) (interface{}, error) {

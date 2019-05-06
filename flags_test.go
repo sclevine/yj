@@ -51,5 +51,5 @@ func TestParseWithInvalidFlags(t *testing.T) {
 	assertEq(t, err.Error(), "flag -e only valid for JSON output")
 
 	_, err = main.Parse("ijy")
-	assertEq(t, err.Error(), "flag -i only valid for JSON output")
+	assertEq(t, err.Error(), "flag -i only valid for JSON or TOML output")
 }

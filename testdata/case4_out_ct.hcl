@@ -15,5 +15,5 @@ key-string-list = ["a", "b"]
 "{\"key\":\"value\"}" = "value"
 
 [[key-obj-list]]
-  key-number = 2
-  key-string = "value-string"
+key-number = 2
+key-string = "value-string"

@@ -10,5 +10,5 @@ key-number-list = [0.0, 1.0, 1.0, 1.1]
 key-string-list = ["a", "b"]
 
 [[key-obj-list]]
-  key-number = 2
-  key-string = "value-string"
+key-number = 2
+key-string = "value-string"

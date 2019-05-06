@@ -29,7 +29,7 @@ Convert between YAML, TOML, JSON, and HCL.
           -cc     = HCL to HCL
 -n     Do not covert inf, -inf, and NaN to/from strings (YAML in/out only)
 -e     Escape HTML (JSON out only)
--i     Indent output (JSON out only)
+-i     Indent output (JSON or TOML out only)
 -k     Attempt to parse keys as objects or numbers types (YAML out only)
 -h     Show this help message
 
