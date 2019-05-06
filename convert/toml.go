@@ -6,7 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type TOML struct{
+type TOML struct {
 	Indent bool
 }
 
