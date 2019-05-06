@@ -7,7 +7,7 @@ import (
 
 type JSON struct {
 	EscapeHTML bool
-	Indent bool
+	Indent     bool
 }
 
 func (JSON) String() string {
@@ -17,7 +17,7 @@ func (JSON) String() string {
 func (j JSON) Encode(w io.Writer, in interface{}) error {
 	encoder := json.NewEncoder(w)
 	encoder.SetEscapeHTML(j.EscapeHTML)
-	if (j.Indent) {
+	if j.Indent {
 		encoder.SetIndent("", "  ")
 	}
 	return encoder.Encode(in)

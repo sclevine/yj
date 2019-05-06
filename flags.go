@@ -70,7 +70,7 @@ func transform(s string) (from, to convert.Encoding, err error) {
 	toml := convert.TOML{}
 	json := convert.JSON{
 		EscapeHTML: escapeHTML,
-		Indent: indentJSON,
+		Indent:     indentJSON,
 	}
 	hcl := convert.HCL{}
 
