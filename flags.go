@@ -20,6 +20,7 @@ const (
 	FlagReverse        = 'r'
 	FlagNoFloatStrings = 'n'
 	FlagEscapeHTML     = 'e'
+	FlagIndent         = 'i'
 	FlagJSONKeys       = 'k'
 	FlagHelp           = 'h'
 )
@@ -49,7 +50,7 @@ func flagFilter(r rune) rune {
 	switch r {
 	case FlagYAML, FlagTOML, FlagJSON, FlagHCL, FlagReverse,
 		FlagEscapeHTML, FlagNoFloatStrings, FlagJSONKeys,
-		FlagHelp, '\t', ' ', '-':
+		FlagIndent, FlagHelp, '\t', ' ', '-':
 		return -1
 	}
 	return r
@@ -57,6 +58,7 @@ func flagFilter(r rune) rune {
 
 func transform(s string) (from, to convert.Encoding, err error) {
 	escapeHTML := strings.ContainsRune(s, FlagEscapeHTML)
+	indentJSON := strings.ContainsRune(s, FlagIndent)
 	floatStrings := !strings.ContainsRune(s, FlagNoFloatStrings)
 	jsonKeys := strings.ContainsRune(s, FlagJSONKeys)
 
@@ -68,6 +70,7 @@ func transform(s string) (from, to convert.Encoding, err error) {
 	toml := convert.TOML{}
 	json := convert.JSON{
 		EscapeHTML: escapeHTML,
+		Indent: indentJSON,
 	}
 	hcl := convert.HCL{}
 
@@ -97,6 +100,9 @@ func transform(s string) (from, to convert.Encoding, err error) {
 	}
 	if _, toJSON := to.(convert.JSON); escapeHTML && !toJSON {
 		err = fmt.Errorf("flag -%c only valid for JSON output", FlagEscapeHTML)
+	}
+	if _, toJSON := to.(convert.JSON); indentJSON && !toJSON {
+		err = fmt.Errorf("flag -%c only valid for JSON output", FlagIndent)
 	}
 
 	// TODO: validate -n has YAML input or output flag
