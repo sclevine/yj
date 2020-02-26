@@ -34,3 +34,12 @@ Convert between YAML, TOML, JSON, and HCL.
 -k     Attempt to parse keys as objects or numbers types (YAML out only)
 -h     Show this help message
 ```
+
+### Running from Docker container
+You can run this program directly from a docker container as well. 
+
+For example, to convert a file `config.toml` from TOML to Yaml
+
+```shell
+docker run --rm -i sclevine/yj:latest -ty < config.toml
+```
