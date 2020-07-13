@@ -39,8 +39,9 @@ func (y YAML) Encode(w io.Writer, in interface{}) error {
 
 func (y YAML) Decode(r io.Reader) (interface{}, error) {
 	decoder := &yaml.Decoder{
-		DecodeYAML: func(r io.Reader, data interface{}) error {
-			return goyaml.NewDecoder(r).Decode(data)
+		DecodeYAML: func(r io.Reader) (interface{}, error) {
+			var data interface{}
+			return data, goyaml.NewDecoder(r).Decode(&data)
 		},
 		KeyMarshal: (&yaml.JSON{EscapeHTML: y.EscapeHTML}).Marshal,
 

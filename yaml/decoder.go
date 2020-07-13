@@ -8,7 +8,7 @@ import (
 )
 
 type Decoder struct {
-	DecodeYAML func(io.Reader, interface{}) error
+	DecodeYAML func(io.Reader) (interface{}, error)
 	KeyMarshal func(interface{}) ([]byte, error)
 
 	// If not set, input YAML must not contain these.
@@ -20,7 +20,8 @@ type Decoder struct {
 func (d *Decoder) JSON(r io.Reader) (json interface{}, err error) {
 	defer catchFailure(&err)
 	var data interface{}
-	if err := d.DecodeYAML(r, &data); err != nil {
+	data, err = d.DecodeYAML(r)
+	if err != nil {
 		return nil, err
 	}
 	return d.jsonify(data), nil

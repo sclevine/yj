@@ -12,7 +12,7 @@ import (
 
 func TestDecoderPanics(t *testing.T) {
 	var panicValue interface{}
-	decoder := &yaml.Decoder{DecodeYAML: func(_ io.Reader, _ interface{}) error {
+	decoder := &yaml.Decoder{DecodeYAML: func(_ io.Reader) (interface{}, error) {
 		panic(panicValue)
 	}}
 	r := strings.NewReader("test")

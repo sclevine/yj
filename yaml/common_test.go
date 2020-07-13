@@ -13,14 +13,13 @@ type mockYAML struct {
 	err   error
 }
 
-func (m *mockYAML) decode(r io.Reader, v interface{}) error {
+func (m *mockYAML) decode(r io.Reader) (interface{}, error) {
 	var err error
 	m.data, err = ioutil.ReadAll(r)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	*v.(*interface{}) = m.value
-	return m.err
+	return m.value, m.err
 }
 
 func (m *mockYAML) encode(w io.Writer, v interface{}) error {
