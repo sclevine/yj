@@ -22,7 +22,9 @@ func (YAML) String() string {
 
 func (y YAML) Encode(w io.Writer, in interface{}) error {
 	encoder := &yaml.Encoder{
-		EncodeYAML: goyaml.NewEncoder(w).Encode,
+		EncodeYAML: func(w io.Writer, data interface{}) error {
+			return goyaml.NewEncoder(w).Encode(data)
+		},
 	}
 	if y.FloatStrings {
 		encoder.NaN = "NaN"
@@ -32,12 +34,14 @@ func (y YAML) Encode(w io.Writer, in interface{}) error {
 	if y.JSONKeys {
 		encoder.KeyUnmarshal = json.Unmarshal
 	}
-	return encoder.YAML(in)
+	return encoder.YAML(w, in)
 }
 
 func (y YAML) Decode(r io.Reader) (interface{}, error) {
 	decoder := &yaml.Decoder{
-		DecodeYAML: goyaml.NewDecoder(r).Decode,
+		DecodeYAML: func(r io.Reader, data interface{}) error {
+			return goyaml.NewDecoder(r).Decode(data)
+		},
 		KeyMarshal: (&yaml.JSON{EscapeHTML: y.EscapeHTML}).Marshal,
 
 		NaN:    (*float64)(nil),
@@ -50,5 +54,5 @@ func (y YAML) Decode(r io.Reader) (interface{}, error) {
 		decoder.PosInf = "Infinity"
 		decoder.NegInf = "-Infinity"
 	}
-	return decoder.JSON()
+	return decoder.JSON(r)
 }

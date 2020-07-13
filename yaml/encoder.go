@@ -2,12 +2,13 @@ package yaml
 
 import (
 	"fmt"
+	"io"
 	"math"
 	"reflect"
 )
 
 type Encoder struct {
-	EncodeYAML   func(interface{}) error
+	EncodeYAML   func(io.Writer, interface{}) error
 	KeyUnmarshal func([]byte, interface{}) error
 
 	// If set, these will be converted to floats.
@@ -18,9 +19,9 @@ type Encoder struct {
 // Special string keys from the Decoder are accounted for.
 // YAML objects are accepted, as long as represent valid JSON.
 // Internal structs are currently passed through unmodified.
-func (e *Encoder) YAML(json interface{}) (err error) {
+func (e *Encoder) YAML(w io.Writer, json interface{}) (err error) {
 	defer catchFailure(&err)
-	return e.EncodeYAML(e.yamlify(json))
+	return e.EncodeYAML(w, e.yamlify(json))
 }
 
 func (e *Encoder) yamlify(in interface{}) interface{} {

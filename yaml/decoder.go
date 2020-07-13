@@ -2,12 +2,13 @@ package yaml
 
 import (
 	"fmt"
+	"io"
 	"math"
 	"reflect"
 )
 
 type Decoder struct {
-	DecodeYAML func(interface{}) error
+	DecodeYAML func(io.Reader, interface{}) error
 	KeyMarshal func(interface{}) ([]byte, error)
 
 	// If not set, input YAML must not contain these.
@@ -16,10 +17,10 @@ type Decoder struct {
 }
 
 // JSON decodes YAML into an object that marshals cleanly into JSON.
-func (d *Decoder) JSON() (json interface{}, err error) {
+func (d *Decoder) JSON(r io.Reader) (json interface{}, err error) {
 	defer catchFailure(&err)
 	var data interface{}
-	if err := d.DecodeYAML(&data); err != nil {
+	if err := d.DecodeYAML(r, &data); err != nil {
 		return nil, err
 	}
 	return d.jsonify(data), nil

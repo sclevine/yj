@@ -1,21 +1,32 @@
 package yaml_test
 
 import (
+	"io"
+	"io/ioutil"
 	"reflect"
 	"testing"
 )
 
 type mockYAML struct {
+	data  []byte
 	value interface{}
 	err   error
 }
 
-func (m *mockYAML) decode(v interface{}) error {
+func (m *mockYAML) decode(r io.Reader, v interface{}) error {
+	var err error
+	m.data, err = ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
 	*v.(*interface{}) = m.value
 	return m.err
 }
 
-func (m *mockYAML) encode(v interface{}) error {
+func (m *mockYAML) encode(w io.Writer, v interface{}) error {
+	if _, err := w.Write(m.data); err != nil {
+		return err
+	}
 	m.value = v
 	return m.err
 }
