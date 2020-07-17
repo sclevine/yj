@@ -1,8 +1,11 @@
 package convert
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
+	"io/ioutil"
 )
 
 type JSON struct {
@@ -23,7 +26,19 @@ func (j JSON) Encode(w io.Writer, in interface{}) error {
 	return encoder.Encode(in)
 }
 
+// TODO: implement streaming version
 func (JSON) Decode(r io.Reader) (interface{}, error) {
-	var data interface{}
-	return data, json.NewDecoder(r).Decode(&data)
+	out, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+	if !json.Valid(out) {
+		var null interface{}
+		err := json.Unmarshal(out, &null)
+		if err == nil {
+			err = errors.New("invalid JSON")
+		}
+		return nil, err
+	}
+	return (YAML{}).Decode(bytes.NewReader(out))
 }

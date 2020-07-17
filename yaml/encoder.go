@@ -5,6 +5,8 @@ import (
 	"io"
 	"math"
 	"reflect"
+
+	"github.com/sclevine/yj/order"
 )
 
 type Encoder struct {
@@ -26,33 +28,23 @@ func (e *Encoder) YAML(w io.Writer, json interface{}) (err error) {
 
 func (e *Encoder) yamlify(in interface{}) interface{} {
 	switch in := in.(type) {
-	case map[string]interface{}:
-		out := map[interface{}]interface{}{}
-		for k, v := range in {
-			out[e.yamlifyKey(k)] = e.yamlify(v)
-		}
-		return out
-	case map[interface{}]interface{}: // TODO: test
-		out := map[interface{}]interface{}{}
-		for k, v := range in {
-			switch k := k.(type) {
-			case string:
-				out[e.yamlifyKey(k)] = e.yamlify(v)
-			default:
-				panic(fmt.Errorf("invalid key: %#v", k)) // test!
+	case order.MapSlice:
+		out := make(order.MapSlice, 0, len(in))
+		for _, item := range in {
+			key, ok := item.Key.(string)
+			if !ok {
+				panic(fmt.Errorf("key not string: %#v", item.Key))
 			}
+			out = append(out, order.MapItem{
+				Key: e.yamlifyKey(key),
+				Val: e.yamlify(item.Val),
+			})
 		}
 		return out
 	case []interface{}:
-		out := make([]interface{}, len(in))
-		for i, v := range in {
-			out[i] = e.yamlify(v)
-		}
-		return out
-	case []map[string]interface{}: // TODO: test
-		out := make([]interface{}, len(in))
-		for i, v := range in {
-			out[i] = e.yamlify(v)
+		out := make([]interface{}, 0, len(in))
+		for _, v := range in {
+			out = append(out, e.yamlify(v))
 		}
 		return out
 	default:

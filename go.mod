@@ -3,7 +3,7 @@ module github.com/sclevine/yj
 go 1.13
 
 require (
-	github.com/BurntSushi/toml v0.3.1
 	github.com/hashicorp/hcl v1.0.0
-	gopkg.in/yaml.v2 v2.2.7
+	github.com/pelletier/go-toml v1.8.0
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 )

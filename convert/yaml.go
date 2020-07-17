@@ -1,11 +1,10 @@
 package convert
 
 import (
-	"encoding/json"
 	"io"
 	"math"
 
-	goyaml "gopkg.in/yaml.v2"
+	goyaml "gopkg.in/yaml.v3"
 
 	"github.com/sclevine/yj/yaml"
 )
@@ -22,8 +21,8 @@ func (YAML) String() string {
 
 func (y YAML) Encode(w io.Writer, in interface{}) error {
 	encoder := &yaml.Encoder{
-		EncodeYAML: func(w io.Writer, data interface{}) error {
-			return goyaml.NewEncoder(w).Encode(data)
+		EncodeYAML: func(w io.Writer, v interface{}) error {
+			return goyaml.NewEncoder(w).Encode(v)
 		},
 	}
 	if y.FloatStrings {
@@ -32,18 +31,18 @@ func (y YAML) Encode(w io.Writer, in interface{}) error {
 		encoder.NegInf = "-Infinity"
 	}
 	if y.JSONKeys {
-		encoder.KeyUnmarshal = json.Unmarshal
+		encoder.KeyUnmarshal = (&yaml.JSON{}).Unmarshal
 	}
 	return encoder.YAML(w, in)
 }
 
 func (y YAML) Decode(r io.Reader) (interface{}, error) {
 	decoder := &yaml.Decoder{
-		DecodeYAML: func(r io.Reader) (interface{}, error) {
-			var data interface{}
-			return data, goyaml.NewDecoder(r).Decode(&data)
+		DecodeYAML: func(r io.Reader) (*goyaml.Node, error) {
+			var data goyaml.Node
+			return &data, goyaml.NewDecoder(r).Decode(&data)
 		},
-		KeyMarshal: (&yaml.JSON{EscapeHTML: y.EscapeHTML}).Marshal,
+		KeyMarshal: (&yaml.JSON{EscapeHTML: y.EscapeHTML}).Marshal, // FIXME: double-check map-keys
 
 		NaN:    (*float64)(nil),
 		PosInf: math.MaxFloat64,

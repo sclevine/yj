@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	goyaml "gopkg.in/yaml.v2"
+	goyaml "gopkg.in/yaml.v3"
 
 	"github.com/sclevine/yj/yaml"
 )

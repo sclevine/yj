@@ -28,6 +28,7 @@ func (HCL) Encode(w io.Writer, in interface{}) error {
 	return printer.Fprint(w, ast)
 }
 
+// FIXME: last broken part
 func (HCL) Decode(r io.Reader) (interface{}, error) {
 	in, err := ioutil.ReadAll(r)
 	if err != nil {

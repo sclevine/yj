@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"reflect"
 	"testing"
+
+	goyaml "gopkg.in/yaml.v3"
 )
 
 type mockYAML struct {
@@ -13,7 +15,7 @@ type mockYAML struct {
 	err   error
 }
 
-func (m *mockYAML) decode(r io.Reader) (interface{}, error) {
+func (m *mockYAML) decode(r io.Reader) (*goyaml.Node, error) {
 	var err error
 	m.data, err = ioutil.ReadAll(r)
 	if err != nil {
