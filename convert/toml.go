@@ -1,6 +1,7 @@
 package convert
 
 import (
+	"fmt"
 	"io"
 	"sort"
 
@@ -17,7 +18,8 @@ func (TOML) String() string {
 	return "TOML"
 }
 
-func (t TOML) Encode(w io.Writer, in interface{}) error {
+func (t TOML) Encode(w io.Writer, in interface{}) (err error) {
+	defer catchFailure(&err)
 	enc := gotoml.NewEncoder(&trimWriter{w: w})
 	enc.Order(gotoml.OrderPreserve)
 	if !t.Indent {
@@ -47,6 +49,7 @@ func (w *trimWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
+// FIXME: bug with map containing list of objects, later key's values override earlier keys
 func jsonToTOML(in interface{}) interface{} {
 	switch in := in.(type) {
 	case order.MapSlice:
@@ -78,17 +81,23 @@ func sliceToTrees(vs []interface{}) interface{} {
 }
 
 func treeFromMapSlice(m order.MapSlice) *gotoml.Tree {
+	// TODO: double-check potential issue with SetPath not sorting?
+	// TODO: swap d and g to check
+	// echo -e '{"d":[{"a":1},{"b":2}],"g":[{"a":1},{"j":1}]}' | ./yj -jt
 	tree, err := gotoml.TreeFromMap(map[string]interface{}{})
 	if err != nil {
-		return nil
+		panic(err)
 	}
 	for _, item := range m {
 		key, ok := item.Key.(string)
 		if !ok {
-			continue
+			panic(fmt.Errorf("non-string key: %#v", item.Key))
 		}
+		//fmt.Println("setting", key, item.Val)
+		// fix idea: maybe setting trees does not set their positions?
 		tree.SetPath([]string{key}, jsonToTOML(item.Val))
 	}
+	//fmt.Printf("tree %#v\n", tree)
 	return tree
 }
 
@@ -105,7 +114,8 @@ func tomlFromSimple(v interface{}) (out interface{}) {
 	return tree.GetPath([]string{"v"})
 }
 
-func (TOML) Decode(r io.Reader) (interface{}, error) {
+func (TOML) Decode(r io.Reader) (out interface{}, err error) {
+	defer catchFailure(&err)
 	tree, err := gotoml.LoadReader(r)
 	if err != nil {
 		return nil, err
