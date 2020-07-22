@@ -25,7 +25,8 @@ func (t TOML) Encode(w io.Writer, in interface{}) (err error) {
 	if !t.Indent {
 		enc.Indentation("")
 	}
-	return enc.Encode(jsonToTOML(in))
+	converter := newTOMLConverter()
+	return enc.Encode(converter.toTOML(in))
 }
 
 type trimWriter struct {
@@ -49,20 +50,33 @@ func (w *trimWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
-// FIXME: bug with map containing list of objects, later key's values override earlier keys
-func jsonToTOML(in interface{}) interface{} {
-	switch in := in.(type) {
+type tomlConverter int
+
+func newTOMLConverter() tomlConverter {
+	return tomlConverter(0)
+}
+
+func (l *tomlConverter) toTOML(val interface{}) interface{} {
+	switch val := val.(type) {
 	case order.MapSlice:
-		return treeFromMapSlice(in)
+		return l.mapToTree(val)
 	case []interface{}:
-		out := make([]interface{}, 0, len(in))
-		for _, v := range in {
-			out = append(out, jsonToTOML(v))
+		out := make([]interface{}, 0, len(val))
+		for _, v := range val {
+			out = append(out, l.toTOML(v))
 		}
 		return sliceToTrees(out)
 	default:
-		return tomlFromSimple(in)
+		return l.simpleToTOML(val)
 	}
+}
+
+func newTree() *gotoml.Tree {
+	tree, err := gotoml.TreeFromMap(map[string]interface{}{})
+	if err != nil {
+		panic(err)
+	}
+	return tree
 }
 
 func sliceToTrees(vs []interface{}) interface{} {
@@ -80,28 +94,21 @@ func sliceToTrees(vs []interface{}) interface{} {
 	return vs
 }
 
-func treeFromMapSlice(m order.MapSlice) *gotoml.Tree {
-	// TODO: double-check potential issue with SetPath not sorting?
-	// TODO: swap d and g to check
-	// echo -e '{"d":[{"a":1},{"b":2}],"g":[{"a":1},{"j":1}]}' | ./yj -jt
-	tree, err := gotoml.TreeFromMap(map[string]interface{}{})
-	if err != nil {
-		panic(err)
-	}
+func (l *tomlConverter) mapToTree(m order.MapSlice) *gotoml.Tree {
+	tree := newTree()
+	tree.SetPositionPath(nil, gotoml.Position{Line: int(*l)})
+	*l++
 	for _, item := range m {
 		key, ok := item.Key.(string)
 		if !ok {
 			panic(fmt.Errorf("non-string key: %#v", item.Key))
 		}
-		//fmt.Println("setting", key, item.Val)
-		// fix idea: maybe setting trees does not set their positions?
-		tree.SetPath([]string{key}, jsonToTOML(item.Val))
+		tree.SetPath([]string{key}, l.toTOML(item.Val))
 	}
-	//fmt.Printf("tree %#v\n", tree)
 	return tree
 }
 
-func tomlFromSimple(v interface{}) (out interface{}) {
+func (l *tomlConverter) simpleToTOML(v interface{}) (out interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
 			out = v
@@ -111,6 +118,8 @@ func tomlFromSimple(v interface{}) (out interface{}) {
 	if err != nil {
 		return v
 	}
+	tree.SetPositionPath(nil, gotoml.Position{Line: int(*l)})
+	*l++
 	return tree.GetPath([]string{"v"})
 }
 
