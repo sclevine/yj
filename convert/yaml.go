@@ -22,7 +22,9 @@ func (YAML) String() string {
 func (y YAML) Encode(w io.Writer, in interface{}) error {
 	encoder := &yaml.Encoder{
 		EncodeYAML: func(w io.Writer, v interface{}) error {
-			return goyaml.NewEncoder(w).Encode(v)
+			enc := goyaml.NewEncoder(w)
+			enc.SetIndent(2)
+			return enc.Encode(v)
 		},
 	}
 	if y.FloatStrings {

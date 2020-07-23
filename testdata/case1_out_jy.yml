@@ -1,25 +1,25 @@
--.inf: -.inf
-.inf: .inf
-.nan: null
-'"key"': '"value"'
-<: '>'
-'{"-Infinity":"-Infinity"}': -.inf
-'{"<":">"}': '>'
-'{"Infinity":"Infinity"}': .inf
-'{"NaN":"NaN"}': .nan
-'{"key":"value"}': value
 "0": 0
 "1.0": 1
 "1.1": 1.1
+'"key"': '"value"'
+<: '>'
+'{"<":">"}': '>'
+'{"key":"value"}': value
+.inf: .inf
+-.inf: -.inf
+.nan: .nan
+'{"Infinity":"Infinity"}': .inf
+'{"-Infinity":"-Infinity"}': -.inf
+'{"NaN":"NaN"}': .nan
 key-null: null
-key-number-list:
-- 0
-- 1
-- 1
-- 1.1
 key-obj-list:
-- key-number: 2
-  key-string: value-string
+  - key-string: value-string
+    key-number: 2
+key-number-list:
+  - 0
+  - 1
+  - 1
+  - 1.1
 key-string-list:
-- a
-- b
+  - a
+  - b

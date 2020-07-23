@@ -23,6 +23,9 @@ func (j JSON) Encode(w io.Writer, in interface{}) error {
 	encoder := json.NewEncoder(w)
 	encoder.SetEscapeHTML(j.EscapeHTML)
 	// TODO: remove global, may affect yaml/json.go
+	defer func(p bool) {
+		order.MapSliceEscapeHTML = p
+	}(order.MapSliceEscapeHTML)
 	order.MapSliceEscapeHTML = j.EscapeHTML
 	if j.Indent {
 		encoder.SetIndent("", "  ")
