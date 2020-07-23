@@ -31,16 +31,20 @@ func (m MapSlice) Merge(in MapSlice) MapSlice {
 	return out
 }
 
+var MapSliceEscapeHTML = false
+
 func (m MapSlice) MarshalJSON() ([]byte, error) {
 	buf := &bytes.Buffer{}
 	buf.Write([]byte{'{'})
-	for i, mi := range m {
-		b, err := json.Marshal(&mi.Val)
-		if err != nil {
+	for i, item := range m {
+		ibuf := &bytes.Buffer{}
+		enc := json.NewEncoder(ibuf)
+		enc.SetEscapeHTML(MapSliceEscapeHTML)
+		if err := enc.Encode(&item.Val); err != nil {
 			return nil, err
 		}
-		buf.WriteString(fmt.Sprintf("%q:", fmt.Sprint(mi.Key)))
-		buf.Write(b)
+		buf.WriteString(fmt.Sprintf("%q:", fmt.Sprint(item.Key)))
+		buf.Write(ibuf.Bytes())
 		if i < len(m)-1 {
 			buf.Write([]byte{','})
 		}

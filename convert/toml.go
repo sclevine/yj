@@ -63,6 +63,9 @@ func (l *tomlConverter) toTOML(val interface{}) interface{} {
 	case []interface{}:
 		out := make([]interface{}, 0, len(val))
 		for _, v := range val {
+			if v == nil {
+				continue
+			}
 			out = append(out, l.toTOML(v))
 		}
 		return sliceToTrees(out)
@@ -94,16 +97,36 @@ func sliceToTrees(vs []interface{}) interface{} {
 	return vs
 }
 
+func tomlKey(s string) string {
+	if s == "" {
+		return "\"\""
+	}
+	if len(s) < 2 {
+		return s
+	}
+	if s[0] == '"' && s[len(s)-1] == '"' {
+		return `"\` + s[:len(s)-1] + `\""`
+	}
+	return s
+}
+
 func (l *tomlConverter) mapToTree(m order.MapSlice) *gotoml.Tree {
 	tree := newTree()
-	tree.SetPositionPath(nil, gotoml.Position{Line: int(*l)})
-	*l++
-	for _, item := range m {
+	tl := TreesLast(m)
+	sort.Stable(tl)
+	for _, item := range tl {
 		key, ok := item.Key.(string)
 		if !ok {
 			panic(fmt.Errorf("non-string key: %#v", item.Key))
 		}
-		tree.SetPath([]string{key}, l.toTOML(item.Val))
+		if item.Val == nil {
+			continue
+		}
+		keys := []string{tomlKey(key)}
+		line := int(*l)
+		*l++
+		tree.SetPath(keys, l.toTOML(item.Val))
+		tree.SetPositionPath(keys, gotoml.Position{Line: line})
 	}
 	return tree
 }
@@ -118,7 +141,7 @@ func (l *tomlConverter) simpleToTOML(v interface{}) (out interface{}) {
 	if err != nil {
 		return v
 	}
-	tree.SetPositionPath(nil, gotoml.Position{Line: int(*l)})
+	tree.SetPositionPath([]string{"v"}, gotoml.Position{Line: int(*l)})
 	*l++
 	return tree.GetPath([]string{"v"})
 }
@@ -211,4 +234,28 @@ func (t TOMLTrees) MapSlice() order.MapSlice {
 		})
 	}
 	return out
+}
+
+type TreesLast order.MapSlice
+
+func (t TreesLast) Len() int      { return len(t) }
+func (t TreesLast) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t TreesLast) Less(i, j int) bool {
+	return !isMapSlices(t[i].Val) && isMapSlices(t[j].Val)
+}
+
+func isMapSlices(v interface{}) bool {
+	switch v := v.(type) {
+	case order.MapSlice:
+		return true
+	case []interface{}:
+		for _, u := range v {
+			if _, ok := u.(order.MapSlice); !ok {
+				return false
+			}
+		}
+		return len(v) > 0
+	default:
+		return false
+	}
 }

@@ -6,6 +6,8 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+
+	"github.com/sclevine/yj/order"
 )
 
 type JSON struct {
@@ -20,6 +22,8 @@ func (JSON) String() string {
 func (j JSON) Encode(w io.Writer, in interface{}) error {
 	encoder := json.NewEncoder(w)
 	encoder.SetEscapeHTML(j.EscapeHTML)
+	// TODO: remove global, may affect yaml/json.go
+	order.MapSliceEscapeHTML = j.EscapeHTML
 	if j.Indent {
 		encoder.SetIndent("", "  ")
 	}

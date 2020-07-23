@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"reflect"
-	"sort"
 	"strings"
 	"testing"
 
@@ -48,14 +47,14 @@ func TestCases(t *testing.T) {
 		assertEq(t, code, 0)
 		assertEq(t, len(stderr), 0)
 
-		if flags[1] == "yml" {
-			a := strings.Split(string(rdfile(t, out)), "\n")
-			b := strings.Split(string(stdout), "\n")
-			sort.Strings(a)
-			sort.Strings(b)
-			assertEq(t, a, b)
-			continue
-		}
+		//if flags[1] == "yml" {
+		//a := strings.Split(string(rdfile(t, out)), "\n")
+		//b := strings.Split(string(stdout), "\n")
+		//sort.Strings(a)
+		//sort.Strings(b)
+		//assertEq(t, a, b)
+		//continue
+		//}
 		assertEq(t, string(rdfile(t, out)), string(stdout))
 	}
 }

@@ -1,0 +1,32 @@
+{
+  "0": 0,
+  "1.0": 1,
+  "1.1": 1.1,
+  "\"key\"": "\"value\"",
+  "\u003c": "\u003e",
+  "{\"\u003c\":\"\u003e\"}": "\u003e",
+  "{\"key\":\"value\"}": "value",
+  "Infinity": "Infinity",
+  "-Infinity": "-Infinity",
+  "NaN": "NaN",
+  "{\"Infinity\":\"Infinity\"}": "Infinity",
+  "{\"-Infinity\":\"-Infinity\"}": "-Infinity",
+  "{\"NaN\":\"NaN\"}": "NaN",
+  "key-null": null,
+  "key-obj-list": [
+    {
+      "key-string": "value-string",
+      "key-number": 2
+    }
+  ],
+  "key-number-list": [
+    0,
+    1,
+    1,
+    1.1
+  ],
+  "key-string-list": [
+    "a",
+    "b"
+  ]
+}
