@@ -68,7 +68,8 @@ func transform(s string) (from, to convert.Encoding, err error) {
 		EscapeHTML:   escapeHTML,
 	}
 	toml := convert.TOML{
-		Indent: indent,
+		FloatStrings: floatStrings,
+		Indent:       indent,
 	}
 	json := convert.JSON{
 		EscapeHTML: escapeHTML,
@@ -112,7 +113,8 @@ func transform(s string) (from, to convert.Encoding, err error) {
 		}
 	}
 
-	// TODO: validate -n has YAML input or output flag
+	// FIXME: validate -n isn't used between inapplicable types
+	// FIXME: validate -n isn't used for YAML<->TOML conversions, and preserve symbolic types
 
 	return
 }

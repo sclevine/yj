@@ -5,12 +5,12 @@
 "<" = ">"
 "{\"<\":\">\"}" = ">"
 "{\"key\":\"value\"}" = "value"
-Infinity = "Infinity"
--Infinity = "-Infinity"
-NaN = "NaN"
-"{\"Infinity\":\"Infinity\"}" = "Infinity"
-"{\"-Infinity\":\"-Infinity\"}" = "-Infinity"
-"{\"NaN\":\"NaN\"}" = "NaN"
+Infinity = +inf
+-Infinity = -inf
+NaN = nan
+"{\"Infinity\":\"Infinity\"}" = +inf
+"{\"-Infinity\":\"-Infinity\"}" = -inf
+"{\"NaN\":\"NaN\"}" = nan
 key-number-list = [0, 1, 1.0, 1.1]
 key-string-list = ["a", "b"]
 

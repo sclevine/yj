@@ -13,6 +13,8 @@ import (
 	"github.com/sclevine/yj/order"
 )
 
+// NOTE: some parts copied from gopkg.in/yaml.v3
+
 type Decoder struct {
 	DecodeYAML func(io.Reader) (*goyaml.Node, error)
 	KeyMarshal func(interface{}) ([]byte, error)

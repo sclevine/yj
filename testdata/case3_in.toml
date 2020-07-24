@@ -1,20 +1,26 @@
-## For TOML v0.5.0:
-#-Infinity = -inf
-#Infinity = inf
-#"+Infinity" = +inf
-#-NaN = -nan
-#NaN = nan
-#"+NaN" = +nan
+# TODO: test escaped quotes in keys when toml lib eventually supports it
+# TODO: test with -n
 
-"\"key\"" = "\"value\""
 0 = 0
 1 = 1.0
 "1.1" = 1.1
+'"key"' = "\"value\""
 "<" = ">"
-date = 2006-01-02T15:04:05-07:00
+'{"<":">"}' = ">"
+'{"key":"value"}' = "value"
+Infinity = inf
+-Infinity = -inf
+"+Infinity" = +inf
+NaN = nan
+-NaN = -nan
+"+NaN" = +nan
+'{"Infinity":"Infinity"}' = inf
+'{"-Infinity":"-Infinity"}' = -inf
+'{"NaN":"NaN"}' = nan
 key-number-list = [0.0, 1.0, 1.1]
 key-string-list = ["a", "b"]
+date = 2006-01-02T15:04:05-07:00
 
 [[key-obj-list]]
-  key-number = 2
   key-string = "value-string"
+  key-number = 2

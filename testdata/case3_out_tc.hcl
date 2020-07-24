@@ -1,21 +1,43 @@
-"\"key\"" = "\"value\""
-
 "0" = 0
 
 "1" = 1
 
 "1.1" = 1.1
 
+"\"key\"" = "\"value\""
+
 "<" = ">"
 
-"date" = "2006-01-02T15:04:05-07:00"
+"{\"<\":\">\"}" = ">"
+
+"{\"key\":\"value\"}" = "value"
+
+"Infinity" = "Infinity"
+
+"-Infinity" = "-Infinity"
+
+"+Infinity" = "Infinity"
+
+"NaN" = "NaN"
+
+"-NaN" = "NaN"
+
+"+NaN" = "NaN"
+
+"{\"Infinity\":\"Infinity\"}" = "Infinity"
+
+"{\"-Infinity\":\"-Infinity\"}" = "-Infinity"
+
+"{\"NaN\":\"NaN\"}" = "NaN"
 
 "key-number-list" = [0, 1, 1.1]
 
-"key-obj-list" = {
-  "key-number" = 2
-
-  "key-string" = "value-string"
-}
-
 "key-string-list" = ["a", "b"]
+
+"date" = "2006-01-02T15:04:05-07:00"
+
+"key-obj-list" = {
+  "key-string" = "value-string"
+
+  "key-number" = 2
+}

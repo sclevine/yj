@@ -3,6 +3,7 @@ package convert
 import (
 	"fmt"
 	"io"
+	"math"
 	"sort"
 
 	gotoml "github.com/pelletier/go-toml"
@@ -11,7 +12,8 @@ import (
 )
 
 type TOML struct {
-	Indent bool
+	FloatStrings bool
+	Indent       bool
 }
 
 func (TOML) String() string {
@@ -25,7 +27,7 @@ func (t TOML) Encode(w io.Writer, in interface{}) (err error) {
 	if !t.Indent {
 		enc.Indentation("")
 	}
-	converter := newTOMLConverter()
+	converter := tomlConverter{floatStrings: t.FloatStrings}
 	return enc.Encode(converter.toTOML(in))
 }
 
@@ -50,10 +52,9 @@ func (w *trimWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
-type tomlConverter int
-
-func newTOMLConverter() tomlConverter {
-	return tomlConverter(0)
+type tomlConverter struct {
+	line         int
+	floatStrings bool
 }
 
 func (l *tomlConverter) toTOML(val interface{}) interface{} {
@@ -123,8 +124,8 @@ func (l *tomlConverter) mapToTree(m order.MapSlice) *gotoml.Tree {
 			continue
 		}
 		keys := []string{tomlKey(key)}
-		line := int(*l)
-		*l++
+		line := l.line
+		l.line++
 		tree.SetPath(keys, l.toTOML(item.Val))
 		tree.SetPositionPath(keys, gotoml.Position{Line: line})
 	}
@@ -136,26 +137,41 @@ func (l *tomlConverter) simpleToTOML(v interface{}) (out interface{}) {
 		if r := recover(); r != nil {
 			out = v
 		}
+		out = l.denormalize(out)
 	}()
 	tree, err := gotoml.TreeFromMap(map[string]interface{}{"v": v})
 	if err != nil {
 		return v
 	}
-	tree.SetPositionPath([]string{"v"}, gotoml.Position{Line: int(*l)})
-	*l++
+	tree.SetPositionPath([]string{"v"}, gotoml.Position{Line: l.line})
+	l.line++
 	return tree.GetPath([]string{"v"})
 }
 
-func (TOML) Decode(r io.Reader) (out interface{}, err error) {
+func (l *tomlConverter) denormalize(in interface{}) interface{} {
+	if l.floatStrings {
+		switch in {
+		case "NaN":
+			return math.NaN()
+		case "Infinity":
+			return math.Inf(1)
+		case "-Infinity":
+			return math.Inf(-1)
+		}
+	}
+	return in
+}
+
+func (t TOML) Decode(r io.Reader) (out interface{}, err error) {
 	defer catchFailure(&err)
 	tree, err := gotoml.LoadReader(r)
 	if err != nil {
 		return nil, err
 	}
-	return tomlToJSON(tree), nil
+	return t.tomlToJSON(tree), nil
 }
 
-func tomlToJSON(v interface{}) interface{} {
+func (t TOML) tomlToJSON(v interface{}) interface{} {
 	switch v := v.(type) {
 	case *gotoml.Tree:
 		keys := v.Keys()
@@ -163,7 +179,7 @@ func tomlToJSON(v interface{}) interface{} {
 		for _, key := range keys {
 			out = append(out, TOMLTree{
 				Key: key,
-				Val: tomlToJSON(v.GetPath([]string{key})),
+				Val: t.tomlToJSON(v.GetPath([]string{key})),
 				Pos: v.GetPositionPath([]string{key}),
 			})
 		}
@@ -172,26 +188,27 @@ func tomlToJSON(v interface{}) interface{} {
 	case []*gotoml.Tree:
 		out := make([]interface{}, 0, len(v))
 		for _, item := range v {
-			out = append(out, tomlToJSON(item))
+			out = append(out, t.tomlToJSON(item))
 		}
 		return out
 	case []interface{}:
 		out := make([]interface{}, 0, len(v))
 		for _, item := range v {
-			out = append(out, tomlToJSON(item))
+			out = append(out, t.tomlToJSON(item))
 		}
 		return out
 	default:
-		return tomlToSimple(v)
+		return t.tomlToSimple(v)
 	}
 }
 
 // ensures explicit unmarshaling from tree -- may be unnecessary
-func tomlToSimple(v interface{}) (out interface{}) {
+func (t TOML) tomlToSimple(v interface{}) (out interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
 			out = v
 		}
+		out = t.normalize(out)
 	}()
 	tree, err := gotoml.TreeFromMap(map[string]interface{}{"v": v})
 	if err != nil {
@@ -206,6 +223,32 @@ func tomlToSimple(v interface{}) (out interface{}) {
 		return vMap["v"]
 	}
 	return v
+}
+
+func (t TOML) normalize(in interface{}) interface{} {
+	switch in := in.(type) {
+	case float64:
+		if t.FloatStrings {
+			switch {
+			case math.IsNaN(in):
+				return "NaN"
+			case math.IsInf(in, 1):
+				return "Infinity"
+			case math.IsInf(in, -1):
+				return "-Infinity"
+			}
+		} else {
+			switch {
+			case math.IsNaN(in):
+				return (*float64)(nil)
+			case math.IsInf(in, 1):
+				return math.MaxFloat64
+			case math.IsInf(in, -1):
+				return -math.MaxFloat64
+			}
+		}
+	}
+	return in
 }
 
 type TOMLTree struct {

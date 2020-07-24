@@ -44,17 +44,8 @@ func TestCases(t *testing.T) {
 		ins, err := filepath.Glob(parts[0] + "_in.*")
 		assertEq(t, err, nil)
 		stdout, stderr, code := run(rdfile(t, ins[0]), flags[0])
+		assertEq(t, string(stderr), "")
 		assertEq(t, code, 0)
-		assertEq(t, len(stderr), 0)
-
-		//if flags[1] == "yml" {
-		//a := strings.Split(string(rdfile(t, out)), "\n")
-		//b := strings.Split(string(stdout), "\n")
-		//sort.Strings(a)
-		//sort.Strings(b)
-		//assertEq(t, a, b)
-		//continue
-		//}
 		assertEq(t, string(rdfile(t, out)), string(stdout))
 	}
 }

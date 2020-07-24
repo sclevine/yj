@@ -1,17 +1,17 @@
 "\"key\"" = "\"value\""
--Infinity = "-Infinity"
+-Infinity = -inf
 0 = 0
 "1.0" = 1
 "1.1" = 1.1
 "<" = ">"
-Infinity = "Infinity"
-NaN = "NaN"
+Infinity = +inf
+NaN = nan
 key-number-list = [0.0, 1.0, 1.1]
 key-string-list = ["a", "b"]
-"{\"-Infinity\":\"-Infinity\"}" = "-Infinity"
+"{\"-Infinity\":\"-Infinity\"}" = -inf
 "{\"<\":\">\"}" = ">"
-"{\"Infinity\":\"Infinity\"}" = "Infinity"
-"{\"NaN\":\"NaN\"}" = "NaN"
+"{\"Infinity\":\"Infinity\"}" = +inf
+"{\"NaN\":\"NaN\"}" = nan
 "{\"key\":\"value\"}" = "value"
 
 [[key-obj-list]]
