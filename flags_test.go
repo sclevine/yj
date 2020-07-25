@@ -10,8 +10,11 @@ import (
 func TestParse(t *testing.T) {
 	config, err := main.Parse("-t", "y\tk-", "kn-k ", "h h", "")
 	assertEq(t, err, nil)
-	_, ok := config.From.(convert.TOML)
+	toml, ok := config.From.(convert.TOML)
 	assertEq(t, ok, true)
+	assertEq(t, toml, convert.TOML{
+		FloatStrings: false,
+	})
 	yaml, ok := config.To.(convert.YAML)
 	assertEq(t, ok, true)
 	assertEq(t, yaml, convert.YAML{

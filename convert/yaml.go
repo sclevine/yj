@@ -20,41 +20,39 @@ func (YAML) String() string {
 }
 
 func (y YAML) Encode(w io.Writer, in interface{}) error {
-	encoder := &yaml.Encoder{
-		EncodeYAML: func(w io.Writer, v interface{}) error {
-			enc := goyaml.NewEncoder(w)
-			enc.SetIndent(2)
-			return enc.Encode(v)
-		},
-	}
+	enc := &yaml.Encoder{}
 	if y.FloatStrings {
-		encoder.NaN = "NaN"
-		encoder.PosInf = "Infinity"
-		encoder.NegInf = "-Infinity"
+		enc.NaN = "NaN"
+		enc.PosInf = "Infinity"
+		enc.NegInf = "-Infinity"
 	}
 	if y.JSONKeys {
-		encoder.KeyUnmarshal = (&yaml.JSON{}).Unmarshal
+		enc.KeyUnmarshal = (&yaml.KeyJSON{}).Unmarshal
 	}
-	return encoder.YAML(w, in)
+	out, err := enc.Encode(in)
+	if err != nil {
+		return err
+	}
+	yamlEnc := goyaml.NewEncoder(w)
+	yamlEnc.SetIndent(2)
+	return yamlEnc.Encode(out)
 }
 
 func (y YAML) Decode(r io.Reader) (interface{}, error) {
-	decoder := &yaml.Decoder{
-		DecodeYAML: func(r io.Reader) (*goyaml.Node, error) {
-			var data goyaml.Node
-			return &data, goyaml.NewDecoder(r).Decode(&data)
-		},
-		KeyMarshal: (&yaml.JSON{EscapeHTML: y.EscapeHTML}).Marshal, // FIXME: double-check map-keys
-
+	var node goyaml.Node
+	if err := goyaml.NewDecoder(r).Decode(&node); err != nil {
+		return nil, err
+	}
+	dec := &yaml.Decoder{
+		KeyMarshal: (&yaml.KeyJSON{EscapeHTML: y.EscapeHTML}).Marshal, // FIXME: double-check map-keys
 		NaN:    (*float64)(nil),
 		PosInf: math.MaxFloat64,
 		NegInf: -math.MaxFloat64,
 	}
-
 	if y.FloatStrings {
-		decoder.NaN = "NaN"
-		decoder.PosInf = "Infinity"
-		decoder.NegInf = "-Infinity"
+		dec.NaN = "NaN"
+		dec.PosInf = "Infinity"
+		dec.NegInf = "-Infinity"
 	}
-	return decoder.JSON(r)
+	return dec.Decode(&node)
 }

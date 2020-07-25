@@ -2,7 +2,6 @@ package yaml
 
 import (
 	"fmt"
-	"io"
 	"math"
 	"reflect"
 
@@ -10,23 +9,19 @@ import (
 )
 
 type Encoder struct {
-	EncodeYAML   func(io.Writer, interface{}) error
 	KeyUnmarshal func([]byte, interface{}) error
 
 	// If set, these will be converted to floats.
 	NaN, PosInf, NegInf interface{}
 }
 
-// YAML encodes a JSON object into YAML.
-// Special string keys from the Decoder are accounted for.
-// YAML objects are accepted, as long as represent valid JSON.
-// Internal structs are currently passed through unmodified.
-func (e *Encoder) YAML(w io.Writer, json interface{}) (err error) {
+// Encode encodes the normalized object format into a suitable format for marshaling to YAML.
+func (e *Encoder) Encode(normal interface{}) (yaml interface{}, err error) {
 	defer catchFailure(&err)
-	return e.EncodeYAML(w, e.yamlify(json))
+	return e.denormalize(normal), nil
 }
 
-func (e *Encoder) yamlify(in interface{}) interface{} {
+func (e *Encoder) denormalize(in interface{}) interface{} {
 	switch in := in.(type) {
 	case order.MapSlice:
 		out := make(order.MapSlice, 0, len(in))
@@ -36,23 +31,23 @@ func (e *Encoder) yamlify(in interface{}) interface{} {
 				panic(fmt.Errorf("key not string: %#v", item.Key))
 			}
 			out = append(out, order.MapItem{
-				Key: e.yamlifyKey(key),
-				Val: e.yamlify(item.Val),
+				Key: e.key(key),
+				Val: e.denormalize(item.Val),
 			})
 		}
 		return out
 	case []interface{}:
 		out := make([]interface{}, 0, len(in))
 		for _, v := range in {
-			out = append(out, e.yamlify(v))
+			out = append(out, e.denormalize(v))
 		}
 		return out
 	default:
-		return e.yamlifyOther(in)
+		return e.other(in)
 	}
 }
 
-func (e *Encoder) yamlifyOther(in interface{}) interface{} {
+func (e *Encoder) other(in interface{}) interface{} {
 	switch in {
 	case nil:
 		return nil
@@ -70,7 +65,7 @@ func (e *Encoder) yamlifyOther(in interface{}) interface{} {
 	return in
 }
 
-func (e *Encoder) yamlifyKey(in string) interface{} {
+func (e *Encoder) key(in string) interface{} {
 	var key interface{} = in
 	if e.KeyUnmarshal != nil {
 		var v interface{}
@@ -78,7 +73,7 @@ func (e *Encoder) yamlifyKey(in string) interface{} {
 			key = v
 		}
 	}
-	switch out := e.yamlify(key); reflect.ValueOf(out).Kind() {
+	switch out := e.denormalize(key); reflect.ValueOf(out).Kind() {
 	case reflect.Map, reflect.Slice, reflect.Func:
 		return &out
 	default:

@@ -4,12 +4,20 @@
 [![GoDoc](https://godoc.org/github.com/sclevine/yj?status.svg)](https://godoc.org/github.com/sclevine/yj)
 
 Convert between YAML, TOML, JSON, and HCL.
+Preserves map order.
+
+Format versions:
+YAML: v1.2 (gopkg.in/yaml.v3)
+TOML: v0.5.0 (github.com/pelletier/go-toml)
+JSON: RFC 7159 (encoding/json)
+HCL: v1 (github.com/hashicorp/hcl)
 
 ```
 opal:yj stephen$ yj -h
-Usage: yj [-][ytjcrneikh]
+Usage: yj [-][ytjcrneikhv]
 
 Convert between YAML, TOML, JSON, and HCL.
+Preserves map order.
 
 -x[x]  Convert using stdin. Valid options:
           -yj, -y = YAML to JSON (default)
@@ -28,9 +36,10 @@ Convert between YAML, TOML, JSON, and HCL.
           -ct     = HCL to TOML
           -cj, -c = HCL to JSON
           -cc     = HCL to HCL
--n     Do not covert inf, -inf, and NaN to/from strings (YAML in/out only)
+-n     Do not covert inf, -inf, and NaN to/from strings (YAML or TOML only)
 -e     Escape HTML (JSON out only)
 -i     Indent output (JSON or TOML out only)
 -k     Attempt to parse keys as objects or numbers types (YAML out only)
 -h     Show this help message
+-v     Show version
 ```

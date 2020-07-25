@@ -6,9 +6,10 @@ import (
 	"os"
 )
 
-const HelpMsg = `Usage: %s [-][ytjcrneikh]
+const HelpMsg = `Usage: %s [-][ytjcrneikhv]
 
 Convert between YAML, TOML, JSON, and HCL.
+Preserves map order.
 
 -x[x]  Convert using stdin. Valid options:
           -yj, -y = YAML to JSON (default)
@@ -27,13 +28,16 @@ Convert between YAML, TOML, JSON, and HCL.
           -ct     = HCL to TOML
           -cj, -c = HCL to JSON
           -cc     = HCL to HCL
--n     Do not covert inf, -inf, and NaN to/from strings (YAML in/out only)
+-n     Do not covert inf, -inf, and NaN to/from strings (YAML or TOML only)
 -e     Escape HTML (JSON out only)
 -i     Indent output (JSON or TOML out only)
 -k     Attempt to parse keys as objects or numbers types (YAML out only)
 -h     Show this help message
+-v     Show version
 
 `
+
+var Version = "0.0.0"
 
 func main() {
 	os.Exit(Run(os.Stdin, os.Stdout, os.Stderr, os.Args))
@@ -48,6 +52,10 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 	}
 	if config.Help {
 		fmt.Fprintf(stdout, HelpMsg, os.Args[0])
+		return 0
+	}
+	if config.Version {
+		fmt.Fprintln(stdout, Version)
 		return 0
 	}
 
