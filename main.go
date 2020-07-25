@@ -55,7 +55,7 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 		return 0
 	}
 	if config.Version {
-		fmt.Fprintln(stdout, Version)
+		fmt.Fprintln(stdout, "v"+Version)
 		return 0
 	}
 
