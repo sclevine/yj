@@ -44,5 +44,7 @@ Preserves map order.
 -v     Show version
 ```
 
+The CLI is also available as a Docker image on [Docker Hub](https://hub.docker.com/r/sclevine/yj).
+
 Packages contained in this repo may also be used to convert all supported data formats to a normalized tree of ordered Go objects.
 See [godoc](https://godoc.org/github.com/sclevine/yj) for details.
