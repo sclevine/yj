@@ -1,5 +1,5 @@
 "0": 0
-"1": 1
+"1": 1.0
 "1.1": 1.1
 '"key"': '"value"'
 <: '>'
@@ -15,8 +15,8 @@
 '{"-Infinity":"-Infinity"}': -.inf
 '{"NaN":"NaN"}': .nan
 key-number-list:
-  - 0
-  - 1
+  - 0.0
+  - 1.0
   - 1.1
 key-string-list:
   - a

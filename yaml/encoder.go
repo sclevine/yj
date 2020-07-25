@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strconv"
+	"unicode"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/sclevine/yj/order"
 )
@@ -12,7 +16,7 @@ type Encoder struct {
 	KeyUnmarshal func([]byte, interface{}) error
 
 	// If set, the set values will be converted to NaN, Inf, etc.
-	NaN, PosInf, NegInf interface{}
+	NaN, PosInf, NegInf          interface{}
 	KeyNaN, KeyPosInf, KeyNegInf interface{}
 }
 
@@ -62,8 +66,25 @@ func (e *Encoder) other(in interface{}) interface{} {
 	switch reflect.ValueOf(in).Kind() {
 	case reflect.Map, reflect.Array, reflect.Slice, reflect.Float32:
 		panic(fmt.Errorf("unexpected type: %#v", in))
+	case reflect.Float64:
+		out := strconv.FormatFloat(in.(float64), 'g', -1, 64)
+		if isNumbers(out) {
+			return &yaml.Node{Kind: yaml.ScalarNode, Value: out + ".0"}
+		}
 	}
 	return in
+}
+
+func isNumbers(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	for _, r := range s {
+		if !unicode.IsNumber(r) {
+			return false
+		}
+	}
+	return true
 }
 
 func (e *Encoder) key(in string) interface{} {

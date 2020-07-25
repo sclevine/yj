@@ -1,5 +1,5 @@
 "0": 0
-"1.0": 1
+"1.0": 1.0
 "1.1": 1.1
 '"key"': '"value"'
 <: '>'
@@ -18,7 +18,7 @@ key-obj-list:
 key-number-list:
   - 0
   - 1
-  - 1
+  - 1.0
   - 1.1
 key-string-list:
   - a

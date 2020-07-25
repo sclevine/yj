@@ -1,14 +1,14 @@
 key: '"value"'
 -.inf: -.inf
 0: 0
-1: 1
+1.0: 1
 1.1: 1.1
 <: '>'
 .inf: .inf
 .nan: .nan
 key-number-list:
-  - 0
-  - 1
+  - 0.0
+  - 1.0
   - 1.1
 key-obj-list:
   - key-number: 2
