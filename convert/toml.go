@@ -9,8 +9,8 @@ import (
 )
 
 type TOML struct {
-	FloatStrings bool
-	Indent       bool
+	SpecialFloats
+	Indent bool
 }
 
 func (TOML) String() string {
@@ -23,7 +23,11 @@ func (t TOML) Encode(w io.Writer, in interface{}) error {
 	if !t.Indent {
 		tomlEnc.Indentation("")
 	}
-	enc := toml.Encoder{FloatStrings: t.FloatStrings}
+	enc := toml.Encoder{
+		NaN:    t.NaN(),
+		PosInf: t.PosInf(),
+		NegInf: t.NegInf(),
+	}
 	out, err := enc.Encode(in)
 	if err != nil {
 		return err
@@ -57,8 +61,10 @@ func (t TOML) Decode(r io.Reader) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	dec := toml.Decoder{FloatStrings: t.FloatStrings}
+	dec := toml.Decoder{
+		NaN:    t.NaN(),
+		PosInf: t.PosInf(),
+		NegInf: t.NegInf(),
+	}
 	return dec.Decode(tree)
 }
-
-

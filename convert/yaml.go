@@ -2,7 +2,6 @@ package convert
 
 import (
 	"io"
-	"math"
 
 	goyaml "gopkg.in/yaml.v3"
 
@@ -10,9 +9,10 @@ import (
 )
 
 type YAML struct {
-	FloatStrings bool
-	JSONKeys     bool
-	EscapeHTML   bool
+	SpecialFloats
+	KeySpecialFloats SpecialFloats
+	JSONKeys         bool
+	EscapeHTML       bool
 }
 
 func (YAML) String() string {
@@ -20,11 +20,13 @@ func (YAML) String() string {
 }
 
 func (y YAML) Encode(w io.Writer, in interface{}) error {
-	enc := &yaml.Encoder{}
-	if y.FloatStrings {
-		enc.NaN = "NaN"
-		enc.PosInf = "Infinity"
-		enc.NegInf = "-Infinity"
+	enc := &yaml.Encoder{
+		NaN:       y.NaN(),
+		PosInf:    y.PosInf(),
+		NegInf:    y.NegInf(),
+		KeyNaN:    y.KeySpecialFloats.NaN(),
+		KeyPosInf: y.KeySpecialFloats.PosInf(),
+		KeyNegInf: y.KeySpecialFloats.NegInf(),
 	}
 	if y.JSONKeys {
 		enc.KeyUnmarshal = (&yaml.KeyJSON{}).Unmarshal
@@ -45,14 +47,12 @@ func (y YAML) Decode(r io.Reader) (interface{}, error) {
 	}
 	dec := &yaml.Decoder{
 		KeyMarshal: (&yaml.KeyJSON{EscapeHTML: y.EscapeHTML}).Marshal, // FIXME: double-check map-keys
-		NaN:    (*float64)(nil),
-		PosInf: math.MaxFloat64,
-		NegInf: -math.MaxFloat64,
-	}
-	if y.FloatStrings {
-		dec.NaN = "NaN"
-		dec.PosInf = "Infinity"
-		dec.NegInf = "-Infinity"
+		NaN:        y.NaN(),
+		PosInf:     y.PosInf(),
+		NegInf:     y.NegInf(),
+		KeyNaN:     y.KeySpecialFloats.NaN(),
+		KeyPosInf:  y.KeySpecialFloats.PosInf(),
+		KeyNegInf:  y.KeySpecialFloats.NegInf(),
 	}
 	return dec.Decode(&node)
 }

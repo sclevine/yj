@@ -35,9 +35,9 @@ var ErrNotMaps = errors.New("map merge requires map or sequence of maps as the v
 type Decoder struct {
 	KeyMarshal func(interface{}) ([]byte, error)
 
-	// If not set, input YAML must not contain these.
-	// These are returned unmodified in the output of JSON.
-	NaN, PosInf, NegInf interface{}
+	// If set, NaN, Inf, etc. are replaced by the set values
+	NaN, PosInf, NegInf          interface{}
+	KeyNaN, KeyPosInf, KeyNegInf interface{}
 }
 
 // Decode decodes a YAML node tree into an the normalized object format.
@@ -115,6 +115,15 @@ func (d *decodeTracker) float(in float64) interface{} {
 }
 
 func (d *decodeTracker) key(n *goyaml.Node) string {
+	// Decoder remains reentrant, but decodeTracker need not be
+	defer func(dec *Decoder) {
+		d.Decoder = dec
+	}(d.Decoder)
+	kdec := *d.Decoder
+	kdec.NaN = d.KeyNaN
+	kdec.PosInf = d.KeyPosInf
+	kdec.NegInf = d.KeyNegInf
+	d.Decoder = &kdec
 	switch key := d.normalize(n).(type) {
 	case string:
 		return key

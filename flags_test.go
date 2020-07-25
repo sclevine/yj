@@ -10,32 +10,33 @@ import (
 func TestParse(t *testing.T) {
 	config, err := main.Parse("-t", "y\tk-", "kn-k ", "h h", "")
 	assertEq(t, err, nil)
-	toml, ok := config.From.(convert.TOML)
+	toml, ok := config.From.(*convert.TOML)
 	assertEq(t, ok, true)
-	assertEq(t, toml, convert.TOML{
-		FloatStrings: false,
+	assertEq(t, toml, &convert.TOML{
+		SpecialFloats: convert.FloatsReal,
 	})
-	yaml, ok := config.To.(convert.YAML)
+	yaml, ok := config.To.(*convert.YAML)
 	assertEq(t, ok, true)
-	assertEq(t, yaml, convert.YAML{
-		EscapeHTML:   false,
-		FloatStrings: false,
-		JSONKeys:     true,
+	assertEq(t, yaml, &convert.YAML{
+		SpecialFloats: convert.FloatsReal,
+		EscapeHTML:    false,
+		JSONKeys:      true,
 	})
 	assertEq(t, config.Help, true)
 
 	config, err = main.Parse("--\t\te  ", "")
 	assertEq(t, err, nil)
-	yaml, ok = config.From.(convert.YAML)
+	yaml, ok = config.From.(*convert.YAML)
 	assertEq(t, ok, true)
-	assertEq(t, yaml, convert.YAML{
-		EscapeHTML:   true,
-		FloatStrings: true,
-		JSONKeys:     false,
+	assertEq(t, yaml, &convert.YAML{
+		SpecialFloats:    convert.FloatsString,
+		KeySpecialFloats: convert.FloatsString,
+		EscapeHTML:       true,
+		JSONKeys:         false,
 	})
-	json, ok := config.To.(convert.JSON)
+	json, ok := config.To.(*convert.JSON)
 	assertEq(t, ok, true)
-	assertEq(t, json, convert.JSON{
+	assertEq(t, json, &convert.JSON{
 		EscapeHTML: true,
 	})
 	assertEq(t, config.Help, false)

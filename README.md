@@ -43,3 +43,6 @@ Preserves map order.
 -h     Show this help message
 -v     Show version
 ```
+
+Packages contained in this repo may also be used to convert all supported data formats to a normalized tree of ordered Go objects.
+See [godoc](https://godoc.org/github.com/sclevine/yj) for details.

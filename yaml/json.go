@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"math"
 	"reflect"
 
 	goyaml "gopkg.in/yaml.v3"
@@ -16,9 +15,9 @@ type KeyJSON struct {
 
 func (k *KeyJSON) Marshal(v interface{}) ([]byte, error) {
 	keyJSON := &bytes.Buffer{}
-	encoder := json.NewEncoder(keyJSON)
-	encoder.SetEscapeHTML(k.EscapeHTML)
-	if err := encoder.Encode(v); err != nil {
+	jsonEnc := json.NewEncoder(keyJSON)
+	jsonEnc.SetEscapeHTML(k.EscapeHTML)
+	if err := jsonEnc.Encode(v); err != nil {
 		return nil, err
 	}
 	return keyJSON.Bytes()[:keyJSON.Len()-1], nil
@@ -38,12 +37,8 @@ func (k *KeyJSON) Unmarshal(src []byte, v interface{}) error {
 	if err := goyaml.NewDecoder(r).Decode(&node); err != nil {
 		return err
 	}
-	norm := &Decoder{
-		NaN:    (*float64)(nil),
-		PosInf: math.MaxFloat64,
-		NegInf: -math.MaxFloat64,
-	}
-	out, err := norm.Decode(&node)
+	dec := &Decoder{}
+	out, err := dec.Decode(&node)
 	if err != nil {
 		return err
 	}

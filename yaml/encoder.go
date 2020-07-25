@@ -11,8 +11,9 @@ import (
 type Encoder struct {
 	KeyUnmarshal func([]byte, interface{}) error
 
-	// If set, these will be converted to floats.
+	// If set, the set values will be converted to NaN, Inf, etc.
 	NaN, PosInf, NegInf interface{}
+	KeyNaN, KeyPosInf, KeyNegInf interface{}
 }
 
 // Encode encodes the normalized object format into a suitable format for marshaling to YAML.
@@ -73,7 +74,11 @@ func (e *Encoder) key(in string) interface{} {
 			key = v
 		}
 	}
-	switch out := e.denormalize(key); reflect.ValueOf(out).Kind() {
+	kenc := *e
+	kenc.NaN = e.KeyNaN
+	kenc.PosInf = e.KeyPosInf
+	kenc.NegInf = e.KeyNegInf
+	switch out := kenc.denormalize(key); reflect.ValueOf(out).Kind() {
 	case reflect.Map, reflect.Slice, reflect.Func:
 		return &out
 	default:

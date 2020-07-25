@@ -1,0 +1,32 @@
+0: 0
+1: 1
+1.1: 1.1
+key: '"value"'
+<: '>'
+? <: '>'
+: '>'
+? key: value
+: value
+.inf: .inf
+-.inf: -.inf
++Infinity: .inf
+.nan: .nan
+-NaN: .nan
++NaN: .nan
+? .inf: .inf
+: .inf
+? -.inf: -.inf
+: -.inf
+? .nan: .nan
+: .nan
+key-number-list:
+  - 0
+  - 1
+  - 1.1
+key-string-list:
+  - a
+  - b
+date: 2006-01-02T15:04:05-07:00
+key-obj-list:
+  - key-string: value-string
+    key-number: 2

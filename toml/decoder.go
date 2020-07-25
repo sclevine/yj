@@ -10,7 +10,8 @@ import (
 )
 
 type Decoder struct {
-	FloatStrings bool
+	// If set, NaN, Inf, etc. are replaced by the set values
+	NaN, PosInf, NegInf interface{}
 }
 
 func (d *Decoder) Decode(toml interface{}) (normal interface{}, err error) {
@@ -75,25 +76,15 @@ func (d Decoder) tomlToSimple(v interface{}) (out interface{}) {
 func (d Decoder) postprocess(in interface{}) interface{} {
 	switch in := in.(type) {
 	case float64:
-		if d.FloatStrings {
-			switch {
-			case math.IsNaN(in):
-				return "NaN"
-			case math.IsInf(in, 1):
-				return "Infinity"
-			case math.IsInf(in, -1):
-				return "-Infinity"
-			}
-		} else {
-			switch {
-			case math.IsNaN(in):
-				return (*float64)(nil)
-			case math.IsInf(in, 1):
-				return math.MaxFloat64
-			case math.IsInf(in, -1):
-				return -math.MaxFloat64
-			}
+		switch {
+		case d.NaN != nil && math.IsNaN(in):
+			return d.NaN
+		case d.PosInf != nil && math.IsInf(in, 1):
+			return d.PosInf
+		case d.NegInf != nil && math.IsInf(in, -1):
+			return d.NegInf
 		}
+		return in
 	}
 	return in
 }

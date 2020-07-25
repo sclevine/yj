@@ -11,7 +11,8 @@ import (
 )
 
 type Encoder struct {
-	FloatStrings bool
+	// If set, the set values will be converted to NaN, Inf, etc.
+	NaN, PosInf, NegInf interface{}
 }
 
 func (e *Encoder) Encode(normal interface{}) (yaml interface{}, err error) {
@@ -42,7 +43,6 @@ func (e *encodeTracker) denormalize(val interface{}) interface{} {
 		return e.simpleToTOML(val)
 	}
 }
-
 
 func (e *encodeTracker) mapToTree(m order.MapSlice) *gotoml.Tree {
 	tree := newTree()
@@ -82,15 +82,15 @@ func (e *encodeTracker) simpleToTOML(v interface{}) (out interface{}) {
 }
 
 func (e *encodeTracker) postprocess(in interface{}) interface{} {
-	if e.FloatStrings {
-		switch in {
-		case "NaN":
-			return math.NaN()
-		case "Infinity":
-			return math.Inf(1)
-		case "-Infinity":
-			return math.Inf(-1)
-		}
+	switch in {
+	case nil:
+		return nil
+	case e.NaN:
+		return math.NaN()
+	case e.PosInf:
+		return math.Inf(1)
+	case e.NegInf:
+		return math.Inf(-1)
 	}
 	return in
 }

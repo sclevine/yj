@@ -61,17 +61,15 @@ func flagFilter(r rune) rune {
 func transform(s string) (from, to convert.Encoding, err error) {
 	escapeHTML := strings.ContainsRune(s, FlagEscapeHTML)
 	indent := strings.ContainsRune(s, FlagIndent)
-	floatStrings := !strings.ContainsRune(s, FlagNoFloatStrings)
 	jsonKeys := strings.ContainsRune(s, FlagJSONKeys)
+	floatStrings := !strings.ContainsRune(s, FlagNoFloatStrings)
 
 	yaml := &convert.YAML{
-		FloatStrings: floatStrings,
-		JSONKeys:     jsonKeys,
-		EscapeHTML:   escapeHTML,
+		JSONKeys:   jsonKeys,
+		EscapeHTML: escapeHTML,
 	}
 	toml := &convert.TOML{
-		FloatStrings: floatStrings,
-		Indent:       indent,
+		Indent: indent,
 	}
 	json := &convert.JSON{
 		EscapeHTML: escapeHTML,
@@ -100,6 +98,44 @@ func transform(s string) (from, to convert.Encoding, err error) {
 		from, to = to, json
 	}
 
+	setKeyFloats(to, func(setTo func(v convert.SpecialFloats)) {
+		if floatStrings {
+			setTo(convert.FloatsString)
+		} else {
+			// never convert number to nan, inf, -inf
+			setTo(convert.FloatsReal)
+		}
+	})
+
+	setKeyFloats(from, func(setFrom func(v convert.SpecialFloats)) {
+		if floatStrings {
+			setFrom(convert.FloatsString)
+		} else {
+			setFrom(convert.FloatsNumber)
+		}
+	})
+
+	setFloats(to, func(setTo func(v convert.SpecialFloats)) {
+		if floatStrings {
+			setTo(convert.FloatsString)
+		} else {
+			// never convert number to nan, inf, -inf
+			setTo(convert.FloatsReal)
+		}
+	})
+
+	setFloats(from, func(setFrom func(v convert.SpecialFloats)) {
+		if floatStrings {
+			setFrom(convert.FloatsString)
+		} else {
+			setFrom(convert.FloatsNumber)
+		}
+		setFloats(to, func(setTo func(v convert.SpecialFloats)) {
+			setFrom(convert.FloatsReal)
+			setTo(convert.FloatsReal)
+		})
+	})
+
 	if _, toYAML := to.(*convert.YAML); jsonKeys && !toYAML {
 		err = fmt.Errorf("flag -%c only valid for YAML output", FlagJSONKeys)
 		return
@@ -118,23 +154,23 @@ func transform(s string) (from, to convert.Encoding, err error) {
 		}
 	}
 
-	floatOff(to, func(toOff func()) {
-		floatOff(from, func(fromOff func()) {
-			toOff()
-			fromOff()
-		})
-	})
-
-	// FIXME: validate -n isn't used between inapplicable types
+	// TODO: validate -n isn't used between inapplicable types
 
 	return
 }
 
-func floatOff(e convert.Encoding, f func(off func())) {
+func setFloats(e convert.Encoding, f func(set func(v convert.SpecialFloats))) {
 	switch e := e.(type) {
 	case *convert.YAML:
-		f(func() { e.FloatStrings = false })
+		f(func(v convert.SpecialFloats) { e.SpecialFloats = v })
 	case *convert.TOML:
-		f(func() { e.FloatStrings = false })
+		f(func(v convert.SpecialFloats) { e.SpecialFloats = v })
+	}
+}
+
+func setKeyFloats(e convert.Encoding, f func(set func(v convert.SpecialFloats))) {
+	switch e := e.(type) {
+	case *convert.YAML:
+		f(func(v convert.SpecialFloats) { e.KeySpecialFloats = v })
 	}
 }
