@@ -45,7 +45,18 @@ Preserves map order.
 -v     Show version
 ```
 
-The CLI is also available as a Docker image on [Docker Hub](https://hub.docker.com/r/sclevine/yj).
+### Installation
+
+`yj` is available for macOS via [Homebrew](https://brew.sh/):
+```bash
+$ brew install yj
+```
+
+Binaries for macOS, Linux, and Windows are [attached to each release](https://github.com/sclevine/yj/releases).
+
+`yj` is also available as a [Docker image](https://hub.docker.com/r/sclevine/yj).
+
+### Go Package
 
 Packages contained in this repo may also be used to convert all supported data formats to a normalized tree of ordered Go objects.
 See [godoc](https://godoc.org/github.com/sclevine/yj) for details.
