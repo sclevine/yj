@@ -1,0 +1,186 @@
+\# Copyright (C) 1999-2011, 2013-2020 Free Software Foundation, Inc.
+\#
+\# This document is dual-licensed.  You may distribute and/or modify it
+\# under the terms of either of the following licenses:
+\#
+\# * The GNU General Public License, as published by the Free Software
+\#   Foundation, version 3 or (at your option) any later version.  You
+\#   should have received a copy of the GNU General Public License
+\#   along with this program.  If not, see
+\#   <https://www.gnu.org/licenses/>.
+\#
+\# * The GNU Free Documentation License, as published by the Free
+\#   Software Foundation, version 1.2 or (at your option) any later
+\#   version, with no Invariant Sections, no Front-Cover Texts, and no
+\#   Back-Cover Texts.  You should have received a copy of the GNU Free
+\#   Documentation License along with this program.  If not, see
+\#   <https://www.gnu.org/licenses/>.
+\#
+\# This documentation created by Nicholas Christopoulos for yj project.
+\# Thanks guys I was need it.
+\#
+\# Please check this project <https://github.com/nereusx/md2roff>
+\# to create man pages easily from markdown.
+\#
+\# Linux groff format (not good) -> man groff_man
+\#.do mso man.tmac
+\#
+\# BSD groff format (much better, if works) -> man groff_mdoc
+.do mso doc.tmac
+\# both cases will work on Linux... well it should (tested on slackware and voidlinux)
+\# of course the first is real UNIX and the second wanna be real UNIX.
+\#
+\# Note 1: do not leave empty lines, it is not problem but may get ugly results.
+\# Note 2: MacOS X+ runs on BSD, so there shouldn't be any problem.
+\#
+\# MAN PAGE HEADER
+\#.Nm yj
+\#.Nd Convert between YAML, TOML, JSON, and HCL.
+.Dd Aug 20, 2020
+.Dt YJ 1 "JSON Convertion Tools"
+.Os
+\#
+.Sh NAME
+.Nm yj
+.Nd Convert between YAML, TOML, JSON, and HCL.
+\#
+.Sh SYNOPSIS
+.Nm yj
+.Op Fl y
+.Op Fl t
+.Op Fl j
+.Op Fl c
+.Op Fl r
+.Op Fl n
+.Op Fl e
+.Op Fl i
+.Op Fl k
+.Op Fl h
+.Op Fl v
+\#
+.Sh DESCRIPTION
+The
+.Nm yj
+converts standard input data to YAML, TOML, JSON, or HCL formats.
+It preserves the map order.
+.Pp
+Supported formats and versions
+.Bl -bullet -offset indent
+.It
+YAML v1.2
+.D1 <http://gopkg.in/yaml.v3>
+.It
+TOML v1.0.0-rc.1
+.D1 <http://github.com/pelletier/go-toml>
+.It
+JSON - RFC 7159 Encoding/JSON
+.D1 <https://tools.ietf.org/html/rfc7159>
+.It
+HCL v1
+.D1 <http://github.com/hashicorp/hcl>
+.El
+\#
+.Sh OPTIONS
+.Bl -tag -width Ds 
+.It Fl n
+Do not covert inf, -inf, and NaN to/from strings (YAML or TOML only)
+.br
+.It Fl e
+Escape HTML (JSON out only)
+.br
+.It Fl i
+Indent output (JSON or TOML out only)
+.br
+.It Fl k
+Attempt to parse keys as objects or numbers types (YAML out only)
+.br
+.It Fl h
+Show this help message
+.br
+.It Fl v
+Show version
+.br
+.It Fl yj, y
+YAML to JSON (default)
+.br
+.It Fl yy     
+YAML to YAML
+.br
+.It Fl yt     
+YAML to TOML
+.br
+.It Fl yc     
+YAML to HCL
+.br
+.It Fl tj, t
+TOML to JSON
+.br
+.It Fl ty     
+TOML to YAML
+.br
+.It Fl tt     
+TOML to TOML
+.br
+.It Fl tc     
+TOML to HCL
+.br
+.It Fl jj     
+JSON to JSON
+.br
+.It Fl jy, r
+JSON to YAML
+.br
+.It Fl jt     
+JSON to TOML
+.br
+.It Fl jc     
+JSON to HCL
+.br
+.It Fl cy     
+HCL to YAML
+.br
+.It Fl ct     
+HCL to TOML
+.br
+.It Fl cj, c
+HCL to JSON
+.br
+.It Fl cc     
+HCL to HCL
+.El
+\#
+\# .Sh ENVIRONMENT
+\# related environment variables goes here
+\#
+\# .Sh FILES
+\# configuration files goes here
+\#
+\# .Sh NOTES
+\#
+.Sh EXAMPLES
+The following example displays the results of ips-find in human readable format:
+.Bd -literal -offset indent
+$ wget https://api.ipfs-search.com/v1/search\\?q=linux -O results.json
+$ cat results.json | yj -i -jt
+.Ed
+\#
+\# .Sh SEE ALSO
+\# .Xr csh 1 ,
+\# .Xr ksh 1
+\#
+.Sh CONFORMING TO
+RFC 7159 Encoding/JSON
+.D1 <https://tools.ietf.org/html/rfc7159>
+\#
+\# .Sh HISTORY
+\#
+.Sh AUTHOR
+\#.An Stephen Levine Aq Mt nobody@FreeBSD.org
+.An Stephen Levine
+.br
+.Lk https://github.com/sclevine/yj
+\#
+\# .Sh BUGS 
+\# known problems goes here
+\#
+\# EOF
