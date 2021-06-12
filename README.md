@@ -9,7 +9,7 @@ Preserves map order.
 
 Format versions:
 - YAML: **v1.2** (gopkg.in/yaml.v3)
-- TOML: **v1.0.0-rc.1** (github.com/pelletier/go-toml)
+- TOML: **v1.0.0-rc.3** (github.com/pelletier/go-toml)
 - JSON: **RFC 7159** (encoding/json)
 - HCL: **v1** (github.com/hashicorp/hcl)
 
