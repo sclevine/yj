@@ -52,6 +52,12 @@ Preserves map order.
 $ brew install yj
 ```
 
+via [asdf](https://asdf-vm.com) version manager:
+```bash
+$ asdf plugin add yj
+$ asdf install yj latest
+```
+
 Binaries for macOS, Linux, and Windows are [attached to each release](https://github.com/sclevine/yj/releases).
 
 `yj` is also available as a [Docker image](https://hub.docker.com/r/sclevine/yj).
