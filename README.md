@@ -1,7 +1,8 @@
 # yj
 
-[![Build Status](https://travis-ci.org/sclevine/yj.svg?branch=master)](https://travis-ci.org/sclevine/yj)
-[![GoDoc](https://godoc.org/github.com/sclevine/yj?status.svg)](https://godoc.org/github.com/sclevine/yj)
+[![GoDoc](https://pkg.go.dev/badge/github.com/sclevine/yj?status.svg)](https://pkg.go.dev/github.com/sclevine/yj)
+[![Tests](https://github.com/sclevine/yj/actions/workflows/go.yml/badge.svg)](https://github.com/sclevine/yj/actions/workflows/go.yml)
+
 
 Convert between YAML, TOML, JSON, and HCL.
 
@@ -14,7 +15,7 @@ Format versions:
 - HCL: **v1** (github.com/hashicorp/hcl)
 
 ```
-opal:yj stephen$ yj -h
+$ yj -h
 Usage: yj [-][ytjcrneikhv]
 
 Convert between YAML, TOML, JSON, and HCL.
@@ -45,18 +46,28 @@ Preserves map order.
 -v     Show version
 ```
 
-### Installation
+## Installation
 
-`yj` is available for macOS via [Homebrew](https://brew.sh/):
+### Homebrew
+
+The `yj` CLI is available via [Homebrew](https://brew.sh):
+
 ```bash
-$ brew install yj
+brew install yj
 ```
+
+### Manual
 
 Binaries for macOS, Linux, and Windows are [attached to each release](https://github.com/sclevine/yj/releases).
 
+### Docker
+
 `yj` is also available as a [Docker image](https://hub.docker.com/r/sclevine/yj).
 
-### Go Package
+## Go Package
 
 Packages contained in this repo may also be used to convert all supported data formats to a normalized tree of ordered Go objects.
-See [godoc](https://godoc.org/github.com/sclevine/yj) for details.
+
+See [godoc](https://pkg.go.dev/github.com/sclevine/yj) for details.
+
+NOTE: The current Go API should not be considered stable.
