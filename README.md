@@ -10,7 +10,7 @@ Preserves map order.
 
 Format versions:
 - YAML: **v1.2** (gopkg.in/yaml.v3)
-- TOML: **v1.0.0-rc.3** (github.com/pelletier/go-toml)
+- TOML: **v1.0.0** (github.com/BurntSushi/toml)
 - JSON: **RFC 7159** (encoding/json)
 - HCL: **v1** (github.com/hashicorp/hcl)
 
@@ -41,7 +41,7 @@ Preserves map order.
 -n     Do not covert inf, -inf, and NaN to/from strings (YAML or TOML only)
 -e     Escape HTML (JSON out only)
 -i     Indent output (JSON or TOML out only)
--k     Attempt to parse keys as objects or numbers types (YAML out only)
+-k     Attempt to parse keys as objects or numeric types (YAML out only)
 -h     Show this help message
 -v     Show version
 ```

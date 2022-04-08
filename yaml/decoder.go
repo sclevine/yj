@@ -9,7 +9,7 @@ import (
 
 	goyaml "gopkg.in/yaml.v3"
 
-	"github.com/sclevine/yj/order"
+	"github.com/sclevine/yj/v5/order"
 )
 
 // NOTE: some parts copied from gopkg.in/yaml.v3

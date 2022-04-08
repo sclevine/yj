@@ -3,9 +3,9 @@ package convert
 import (
 	"io"
 
-	gotoml "github.com/pelletier/go-toml"
+	gotoml "github.com/BurntSushi/toml"
 
-	"github.com/sclevine/yj/toml"
+	"github.com/sclevine/yj/v5/toml"
 )
 
 type TOML struct {
@@ -19,9 +19,8 @@ func (TOML) String() string {
 
 func (t TOML) Encode(w io.Writer, in interface{}) error {
 	tomlEnc := gotoml.NewEncoder(&trimWriter{w: w})
-	tomlEnc.Order(gotoml.OrderPreserve)
 	if !t.Indent {
-		tomlEnc.Indentation("")
+		tomlEnc.Indent = ""
 	}
 	enc := toml.Encoder{
 		NaN:    t.NaN(),
@@ -57,7 +56,8 @@ func (w *trimWriter) Write(p []byte) (n int, err error) {
 }
 
 func (t TOML) Decode(r io.Reader) (interface{}, error) {
-	tree, err := gotoml.LoadReader(r)
+	var out interface{}
+	md, err := gotoml.NewDecoder(r).Decode(&out)
 	if err != nil {
 		return nil, err
 	}
@@ -66,5 +66,5 @@ func (t TOML) Decode(r io.Reader) (interface{}, error) {
 		PosInf: t.PosInf(),
 		NegInf: t.NegInf(),
 	}
-	return dec.Decode(tree)
+	return dec.Decode(out, md.Keys())
 }
