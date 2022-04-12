@@ -18,7 +18,8 @@ func (TOML) String() string {
 }
 
 func (t TOML) Encode(w io.Writer, in interface{}) error {
-	tomlEnc := gotoml.NewEncoder(&trimWriter{w: w})
+	//tomlEnc := gotoml.NewEncoder(&trimWriter{w: w})
+	tomlEnc := gotoml.NewEncoder(w)
 	if !t.Indent {
 		tomlEnc.Indent = ""
 	}

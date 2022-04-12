@@ -16,7 +16,6 @@ type Decoder struct {
 
 func (d *Decoder) Decode(toml interface{}, keys []gotoml.Key) (normal interface{}, err error) {
 	defer catchFailure(&err)
-	//fmt.Printf("KEYS %+v\n", keys)
 	v, _ := d.decode(toml, keys, nil, 0)
 	return v, nil
 }
@@ -25,108 +24,69 @@ func (d Decoder) decode(v interface{}, keys []gotoml.Key, key gotoml.Key, pos in
 	switch v := v.(type) {
 	case map[string]interface{}:
 		ks, npos := uniqueKeys(keys, key, pos, len(v))
-		//fmt.Printf("DECODE MAP [key:] %+v [keys:] %+v [l] %d [p] %d [np] %d\n", key, ks, len(v), pos, npos)
-		//fmt.Printf("MAP THING %+v\n", v)
 		if len(ks) != len(v) {
 			panic(fmt.Errorf("key mismatch, %d vs. %d", len(ks), len(v)))
 		}
-		var m order.MapSlice
+		out := make(order.MapSlice, 0, len(ks))
 		for _, k := range ks {
 			next, ok := v[k]
 			if !ok {
 				panic(fmt.Errorf("missing key `%s'", k))
 			}
-			val, _ := d.decode(next, keys, append(key, k), pos)
-			m = append(m, order.MapItem{Key: k, Val: val})
+			val, dpos := d.decode(next, keys, append(key, k), pos)
+			if dpos > npos {
+				npos = dpos
+			}
+			out = append(out, order.MapItem{Key: k, Val: val})
 		}
-		return m, npos
+		if len(keys) > npos && keysEqual(keys[npos], key) {
+			npos++
+		}
+		return out, npos
 	case []map[string]interface{}:
-		//fmt.Printf("DECODE LIST %+v %d %d\n", key, pos, len(v))
-		var out []interface{}
+		out := make([]interface{}, 0, len(v))
 		for _, item := range v {
 			var val interface{}
 			val, pos = d.decode(item, keys, key, pos)
 			out = append(out, val)
 		}
-		return out, 0
+		return out, pos
 	case []interface{}:
-		//fmt.Printf("DECODE LIST %+v %d %d\n", key, pos, len(v))
-		var out []interface{}
+		out := make([]interface{}, 0, len(v))
 		for _, item := range v {
 			var val interface{}
 			val, pos = d.decode(item, keys, key, pos)
 			out = append(out, val)
 		}
-		return out, 0
+		return out, pos
 	default:
-		return d.convert(v), 0
+		return d.convert(v), pos
 	}
 }
 
-func uniqueKeys(keys []gotoml.Key, key gotoml.Key, pos, n int) ([]string, int) {
+func uniqueKeys(keys []gotoml.Key, prefix gotoml.Key, pos, n int) ([]string, int) {
 	m := make(map[string]struct{})
 	var out []string
-	end := 0
-	seen := false
+	end := pos
 	for i, k := range keys[pos:] {
-		rest, ok := startsWith(k, key)
+		if n == 0 {
+			break
+		}
+		rest, ok := startsWith(k, prefix)
 		if !ok {
 			continue
 		}
 		if len(rest) == 0 {
-			if seen {
-				end = i + pos // needed?
-				break
-			}
-			seen = true
-			continue
-		}
-		r := rest[0]
-		if seen {
-			if _, ok := m[r]; !ok {
-				//if n == 0 {
-				//	break
-				//}
-				m[r] = struct{}{}
-				out = append(out, r)
-				//n--
-			}
-			end = i + pos + 1
-		} else {
-			if n == 0 {
-				break
-			}
-			if _, ok := m[r]; !ok {
-				m[r] = struct{}{}
-				out = append(out, r)
-				n--
-				end = i + pos + 1
-			}
-		}
-	}
-	return out, end
-}
-
-func uniqueKeysOld(keys []gotoml.Key, key gotoml.Key, pos, n int) ([]string, int) {
-	// seeing name of table switches to greedy alg, otherwise stop at last new key?
-	m := make(map[string]struct{})
-	var out []string
-	end := 0
-	for i, k := range keys[pos:] {
-		rest, ok := startsWith(k, key)
-		if !ok || len(rest) == 0 {
+			end = pos + i + 1 // actually needed?
 			continue
 		}
 		r := rest[0]
 		if _, ok := m[r]; !ok {
-			if n == 0 {
-				break
-			}
 			m[r] = struct{}{}
 			out = append(out, r)
 			n--
+			end = pos + i + 1
 		}
-		end = i + pos + 1
 	}
 	return out, end
 }
@@ -157,4 +117,16 @@ func startsWith(key, prefix gotoml.Key) (rest []string, ok bool) {
 		}
 	}
 	return key[len(prefix):], true
+}
+
+func keysEqual(k1, k2 gotoml.Key) bool {
+	if len(k1) != len(k2) {
+		return false
+	}
+	for i := range k1 {
+		if k1[i] != k2[i] {
+			return false
+		}
+	}
+	return true
 }
