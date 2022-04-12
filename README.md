@@ -1,6 +1,6 @@
 # yj
 
-[![GoDoc](https://pkg.go.dev/badge/github.com/sclevine/yj?status.svg)](https://pkg.go.dev/github.com/sclevine/yj)
+[![GoDoc](https://pkg.go.dev/badge/github.com/sclevine/yj/v5?status.svg)](https://pkg.go.dev/github.com/sclevine/yj/v5)
 [![Tests](https://github.com/sclevine/yj/actions/workflows/go.yml/badge.svg)](https://github.com/sclevine/yj/actions/workflows/go.yml)
 
 
