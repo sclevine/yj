@@ -2,6 +2,7 @@
 
 [![GoDoc](https://pkg.go.dev/badge/github.com/sclevine/yj/v5?status.svg)](https://pkg.go.dev/github.com/sclevine/yj/v5)
 [![Tests](https://github.com/sclevine/yj/actions/workflows/go.yml/badge.svg)](https://github.com/sclevine/yj/actions/workflows/go.yml)
+
 [![Packaging status](https://repology.org/badge/tiny-repos/yj-sclevine.svg)](https://repology.org/project/yj-sclevine/versions)
 
 ##
