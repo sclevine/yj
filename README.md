@@ -12,12 +12,12 @@ Convert between YAML, TOML, JSON, and HCL.
 Preserves map order.
 
 Format versions:
-- YAML: **v1.2** (gopkg.in/yaml.v3)
-- TOML: **v1.0.0** (github.com/BurntSushi/toml)
-- JSON: **RFC 7159** (encoding/json)
-- HCL: **v1** (github.com/hashicorp/hcl)
+- YAML: **v1.2** ([gopkg.in/yaml.v3](https://gopkg.in/yaml.v3))
+- TOML: **v1.0.0** ([github.com/BurntSushi/toml](https://github.com/BurntSushi/toml))
+- JSON: **RFC 7159** ([encoding/json](https://www.rfc-editor.org/rfc/rfc7159))
+- HCL: **v1** ([github.com/hashicorp/hcl](https://github.com/hashicorp/hcl))
 
-```
+```bash
 $ yj -h
 Usage: yj [-][ytjcrneikhv]
 
