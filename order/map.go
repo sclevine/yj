@@ -27,9 +27,7 @@ func (m MapSlice) Merge(in MapSlice) MapSlice {
 			out = append(out, item)
 		}
 	}
-	for _, item := range in {
-		out = append(out, item)
-	}
+	out = append(out, in...)
 	return out
 }
 
