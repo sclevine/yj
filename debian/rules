@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+DH_VERBOSE=1
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	make deb/yj
+
+# vi: ts=8:sw=8:noai:noexpandtab:filetype=make
