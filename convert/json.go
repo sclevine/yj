@@ -7,7 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/sclevine/yj/order"
+	"github.com/sclevine/yj/v5/order"
 )
 
 type JSON struct {

@@ -31,7 +31,7 @@ Preserves map order.
 -n     Do not covert inf, -inf, and NaN to/from strings (YAML or TOML only)
 -e     Escape HTML (JSON out only)
 -i     Indent output (JSON or TOML out only)
--k     Attempt to parse keys as objects or numbers types (YAML out only)
+-k     Attempt to parse keys as objects or numeric types (YAML out only)
 -h     Show this help message
 -v     Show version
 
@@ -61,6 +61,7 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, osArgs []string) (code int) 
 
 	rep, err := config.From.Decode(stdin)
 	if err != nil {
+		// TODO: I forget if there's a reason this isn't io.EOF
 		if err.Error() == "EOF" {
 			return 0
 		}

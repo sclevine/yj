@@ -1,7 +1,11 @@
-# yj
+<img src="logo.png" alt="yj" width="180" />
 
-[![Build Status](https://travis-ci.org/sclevine/yj.svg?branch=master)](https://travis-ci.org/sclevine/yj)
-[![GoDoc](https://godoc.org/github.com/sclevine/yj?status.svg)](https://godoc.org/github.com/sclevine/yj)
+[![GoDoc](https://pkg.go.dev/badge/github.com/sclevine/yj/v5?status.svg)](https://pkg.go.dev/github.com/sclevine/yj/v5)
+[![Tests](https://github.com/sclevine/yj/actions/workflows/go.yml/badge.svg)](https://github.com/sclevine/yj/actions/workflows/go.yml)
+
+[![Packaging status](https://repology.org/badge/tiny-repos/yj-sclevine.svg)](https://repology.org/project/yj-sclevine/versions)
+
+##
 
 Convert between YAML, TOML, JSON, and HCL.
 
@@ -9,12 +13,12 @@ Preserves map order.
 
 Format versions:
 - YAML: **v1.2** (gopkg.in/yaml.v3)
-- TOML: **v1.0.0-rc.3** (github.com/pelletier/go-toml)
+- TOML: **v1.0.0** (github.com/BurntSushi/toml)
 - JSON: **RFC 7159** (encoding/json)
 - HCL: **v1** (github.com/hashicorp/hcl)
 
 ```
-opal:yj stephen$ yj -h
+$ yj -h
 Usage: yj [-][ytjcrneikhv]
 
 Convert between YAML, TOML, JSON, and HCL.
@@ -40,26 +44,36 @@ Preserves map order.
 -n     Do not covert inf, -inf, and NaN to/from strings (YAML or TOML only)
 -e     Escape HTML (JSON out only)
 -i     Indent output (JSON or TOML out only)
--k     Attempt to parse keys as objects or numbers types (YAML out only)
+-k     Attempt to parse keys as objects or numeric types (YAML out only)
 -h     Show this help message
 -v     Show version
 ```
 
-### Installation
+## Installation
 
-`yj` is available for macOS via [Homebrew](https://brew.sh/):
+### Homebrew
+
+The `yj` CLI is available via [Homebrew](https://brew.sh):
+
 ```bash
-$ brew install yj
+brew install yj
 ```
+
+### Manual
 
 Binaries for macOS, Linux, and Windows are [attached to each release](https://github.com/sclevine/yj/releases).
 
+### Docker
+
 `yj` is also available as a [Docker image](https://hub.docker.com/r/sclevine/yj).
 
-### Go Package
+## Go Package
 
 Packages contained in this repo may also be used to convert all supported data formats to a normalized tree of ordered Go objects.
+
 See [godoc](https://godoc.org/github.com/sclevine/yj) for details.
+
+NOTE: The current Go API should not be considered stable.
 
 ### Usage
 

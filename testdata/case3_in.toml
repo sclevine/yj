@@ -1,10 +1,9 @@
-# TODO: test escaped quotes in keys when toml lib eventually supports it
 # TODO: test with -n
 
 0 = 0
 1 = 1.0
 "1.1" = 1.1
-'"key"' = "\"value\""
+"\"key\"" = "\"value\""
 "<" = ">"
 '{"<":">"}' = ">"
 '{"key":"value"}' = "value"

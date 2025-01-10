@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/hcl/hcl/printer"
 	hcljson "github.com/hashicorp/hcl/json/parser"
 
-	"github.com/sclevine/yj/hcl"
+	"github.com/sclevine/yj/v5/hcl"
 )
 
 type HCL struct{}

@@ -1,12 +1,12 @@
 package toml
 
 import (
+	"fmt"
 	"math"
-	"sort"
 
-	gotoml "github.com/pelletier/go-toml"
+	gotoml "github.com/BurntSushi/toml"
 
-	"github.com/sclevine/yj/order"
+	"github.com/sclevine/yj/v5/order"
 )
 
 type Decoder struct {
@@ -14,66 +14,84 @@ type Decoder struct {
 	NaN, PosInf, NegInf interface{}
 }
 
-func (d *Decoder) Decode(toml interface{}) (normal interface{}, err error) {
+func (d *Decoder) Decode(toml interface{}, keys []gotoml.Key) (normal interface{}, err error) {
 	defer catchFailure(&err)
-	return d.normalize(toml), nil
+	v, _ := d.decode(toml, keys, nil, 0)
+	return v, nil
 }
 
-func (d Decoder) normalize(v interface{}) interface{} {
+func (d Decoder) decode(v interface{}, keys []gotoml.Key, key gotoml.Key, pos int) (interface{}, int) {
 	switch v := v.(type) {
-	case *gotoml.Tree:
-		keys := v.Keys()
-		out := make(tomlTrees, 0, len(keys))
-		for _, key := range keys {
-			out = append(out, tomlTree{
-				key: key,
-				val: d.normalize(v.GetPath([]string{key})),
-				pos: v.GetPositionPath([]string{key}),
-			})
+	case map[string]interface{}:
+		ks, npos := uniqueKeys(keys, key, pos, len(v))
+		if len(ks) != len(v) {
+			panic(fmt.Errorf("key mismatch, %d vs. %d", len(ks), len(v)))
 		}
-		sort.Sort(out)
-		return out.mapSlice()
-	case []*gotoml.Tree:
+		out := make(order.MapSlice, 0, len(ks))
+		for _, k := range ks {
+			next, ok := v[k]
+			if !ok {
+				panic(fmt.Errorf("missing key `%s'", k))
+			}
+			val, dpos := d.decode(next, keys, append(key, k), pos)
+			if dpos > npos {
+				npos = dpos
+			}
+			out = append(out, order.MapItem{Key: k, Val: val})
+		}
+		if len(keys) > npos && keysEqual(keys[npos], key) {
+			npos++
+		}
+		return out, npos
+	case []map[string]interface{}:
 		out := make([]interface{}, 0, len(v))
 		for _, item := range v {
-			out = append(out, d.normalize(item))
+			var val interface{}
+			val, pos = d.decode(item, keys, key, pos)
+			out = append(out, val)
 		}
-		return out
+		return out, pos
 	case []interface{}:
 		out := make([]interface{}, 0, len(v))
 		for _, item := range v {
-			out = append(out, d.normalize(item))
+			var val interface{}
+			val, pos = d.decode(item, keys, key, pos)
+			out = append(out, val)
 		}
-		return out
+		return out, pos
 	default:
-		return d.tomlToSimple(v)
+		return d.convert(v), pos
 	}
 }
 
-// ensures explicit unmarshaling from tree -- may be unnecessary
-func (d Decoder) tomlToSimple(v interface{}) (out interface{}) {
-	defer func() {
-		if r := recover(); r != nil {
-			out = v
+func uniqueKeys(keys []gotoml.Key, prefix gotoml.Key, pos, n int) ([]string, int) {
+	m := make(map[string]struct{})
+	var out []string
+	end := pos
+	for i, k := range keys[pos:] {
+		if n == 0 {
+			break
 		}
-		out = d.postprocess(out)
-	}()
-	tree, err := gotoml.TreeFromMap(map[string]interface{}{"v": v})
-	if err != nil {
-		return v
+		rest, ok := startsWith(k, prefix)
+		if !ok {
+			continue
+		}
+		if len(rest) == 0 {
+			end = pos + i + 1 // actually needed?
+			continue
+		}
+		r := rest[0]
+		if _, ok := m[r]; !ok {
+			m[r] = struct{}{}
+			out = append(out, r)
+			n--
+			end = pos + i + 1
+		}
 	}
-	sMap := map[string][]interface{}{}
-	if err := tree.Unmarshal(&sMap); err == nil {
-		return sMap["v"]
-	}
-	vMap := map[string]interface{}{}
-	if err := tree.Unmarshal(&vMap); err == nil {
-		return vMap["v"]
-	}
-	return v
+	return out, end
 }
 
-func (d Decoder) postprocess(in interface{}) interface{} {
+func (d Decoder) convert(in interface{}) interface{} {
 	switch in := in.(type) {
 	case float64:
 		switch {
@@ -89,54 +107,26 @@ func (d Decoder) postprocess(in interface{}) interface{} {
 	return in
 }
 
-type tomlTree struct {
-	key string
-	val interface{}
-	pos gotoml.Position
-}
-
-type tomlTrees []tomlTree
-
-func (t tomlTrees) Len() int      { return len(t) }
-func (t tomlTrees) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
-func (t tomlTrees) Less(i, j int) bool {
-	if t[i].pos.Line == t[j].pos.Line {
-		return t[i].pos.Col < t[j].pos.Col
+func startsWith(key, prefix gotoml.Key) (rest []string, ok bool) {
+	if len(key) < len(prefix) {
+		return nil, false
 	}
-	return t[i].pos.Line < t[j].pos.Line
-}
-
-func (t tomlTrees) mapSlice() order.MapSlice {
-	var out order.MapSlice
-	for _, item := range t {
-		out = append(out, order.MapItem{
-			Key: item.key,
-			Val: item.val,
-		})
-	}
-	return out
-}
-
-type treesLast order.MapSlice
-
-func (t treesLast) Len() int      { return len(t) }
-func (t treesLast) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
-func (t treesLast) Less(i, j int) bool {
-	return !isMapSlices(t[i].Val) && isMapSlices(t[j].Val)
-}
-
-func isMapSlices(v interface{}) bool {
-	switch v := v.(type) {
-	case order.MapSlice:
-		return true
-	case []interface{}:
-		for _, u := range v {
-			if _, ok := u.(order.MapSlice); !ok {
-				return false
-			}
+	for i := range prefix {
+		if key[i] != prefix[i] {
+			return nil, false
 		}
-		return len(v) > 0
-	default:
+	}
+	return key[len(prefix):], true
+}
+
+func keysEqual(k1, k2 gotoml.Key) bool {
+	if len(k1) != len(k2) {
 		return false
 	}
+	for i := range k1 {
+		if k1[i] != k2[i] {
+			return false
+		}
+	}
+	return true
 }

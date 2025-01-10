@@ -5,7 +5,7 @@ import (
 
 	goyaml "gopkg.in/yaml.v3"
 
-	"github.com/sclevine/yj/yaml"
+	"github.com/sclevine/yj/v5/yaml"
 )
 
 type YAML struct {

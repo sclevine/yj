@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/sclevine/yj/order"
+	"github.com/sclevine/yj/v5/order"
 )
 
 type Encoder struct {

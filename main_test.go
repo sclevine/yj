@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	main "github.com/sclevine/yj"
+	main "github.com/sclevine/yj/v5"
 )
 
 func TestRunWhenArgsFailToParse(t *testing.T) {
