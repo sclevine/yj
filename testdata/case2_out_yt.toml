@@ -5,10 +5,10 @@
 "<" = ">"
 "{\"<\":\">\"}" = ">"
 "{\"key\":\"value\"}" = "value"
-Infinity = +inf
+Infinity = inf
 -Infinity = -inf
 NaN = nan
-"{\"Infinity\":\"Infinity\"}" = +inf
+"{\"Infinity\":\"Infinity\"}" = inf
 "{\"-Infinity\":\"-Infinity\"}" = -inf
 "{\"NaN\":\"NaN\"}" = nan
 key-number-list = [0.0, 1.0, 1.0, 1.1]

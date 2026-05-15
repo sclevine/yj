@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"unicode"
 
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/sclevine/yj/v5/order"
 )
