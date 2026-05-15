@@ -4,13 +4,13 @@
 "1.0" = 1
 "1.1" = 1.1
 "<" = ">"
-Infinity = +inf
+Infinity = inf
 NaN = nan
 key-number-list = [0.0, 1.0, 1.1]
 key-string-list = ["a", "b"]
 "{\"-Infinity\":\"-Infinity\"}" = -inf
 "{\"<\":\">\"}" = ">"
-"{\"Infinity\":\"Infinity\"}" = +inf
+"{\"Infinity\":\"Infinity\"}" = inf
 "{\"NaN\":\"NaN\"}" = nan
 "{\"key\":\"value\"}" = "value"
 
