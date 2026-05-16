@@ -1,0 +1,16 @@
+Source: yj
+Section: utils
+Priority: optional
+Maintainer: Paul Grinberg <gri6507@gmail.com>
+Build-Depends: ca-certificates,
+               debhelper (>= 10),
+               git,
+               golang-go
+Standards-Version: 4.1.2
+Homepage: https://github.com/sclevine/yj
+
+Package: yj
+Architecture: any
+Depends: ${misc:Depends}
+Description: Convert between YAML, TOML, JSON, and HCL
+ Tool to convert between YAML, TOML, JSON, and HCL.

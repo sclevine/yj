@@ -2,6 +2,7 @@
 .idea
 *.coverprofile
 *~
+.*.swp
 
 /build-v*
 /yj
@@ -12,6 +13,15 @@
 *.dll
 *.so
 *.dylib
+
+# Debian build related files
+deb/
+debian/changelog
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/yj.substvars
+debian/yj/
 
 # Test binary, built with `go test -c`
 *.test
