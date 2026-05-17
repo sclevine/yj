@@ -28,7 +28,7 @@ Preserves map order.
           -ct     = HCL to TOML
           -cj, -c = HCL to JSON
           -cc     = HCL to HCL
--n     Do not covert inf, -inf, and NaN to/from strings (YAML or TOML only)
+-n     Do not convert inf, -inf, and NaN to/from strings (YAML or TOML only)
 -e     Escape HTML (JSON out only)
 -i     Indent output (JSON or TOML out only)
 -k     Attempt to parse keys as objects or numeric types (YAML out only)
