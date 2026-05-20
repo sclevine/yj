@@ -49,6 +49,15 @@ Preserves map order.
 -v     Show version
 ```
 
+## Example
+
+- Convert TOML file to JSON file
+
+```bash
+yj -tj < file.toml > file.json
+```
+
+
 ## Installation
 
 ### Homebrew
