@@ -71,6 +71,15 @@ Binaries for macOS, Linux, and Windows are [attached to each release](https://gi
 
 Packages contained in this repo may also be used to convert all supported data formats to a normalized tree of ordered Go objects.
 
-See [godoc](https://pkg.go.dev/github.com/sclevine/yj) for details.
+See [godoc](https://godoc.org/github.com/sclevine/yj) for details.
 
 NOTE: The current Go API should not be considered stable.
+
+### Usage
+
+`yj` operates on stdin inputs and its output can be piped into a file with the new format.
+On Unix systems, the program can be used as follows:
+
+```bash
+yj -jt < input.json > output.toml
+```
