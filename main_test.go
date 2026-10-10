@@ -50,6 +50,37 @@ func TestCases(t *testing.T) {
 	}
 }
 
+func TestTOMLLiteralKeys(t *testing.T) {
+	cases := []struct {
+		name, input string
+	}{
+		{"comma", `{"stack(x,n)":"foobar"}`},
+		{"empty and minus", `{"":1,"-":2,",":3,"a,":4}`},
+		{"shared prefix", `{"a":1,"a,b":2,"a,c":3}`},
+		{"tag options", `{"a,omitempty":0,"a,omitzero":false}`},
+		{"nested", `{"outer,key":{"inner,key":1,"":2,"-":3}}`},
+		{"table array", `{"array,key":[{"inner,key":1},{"inner,key":2,"":3}]}`},
+		{"inline table", `{"array,key":[1,{"inner,key":2}]}`},
+		{"escaped", `{"quote\",key":1,"slash\\,key":2,"line\n,key":3,"tab\t,key":4,"雪,key":5}`},
+		{"alias text", `{"a,b":"a,b","_yj_key_0":{"_yj_key_1":"_yj_key_0"}}`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			for _, flags := range []string{"jt", "jti"} {
+				t.Run(flags, func(t *testing.T) {
+					encoded, stderr, code := run([]byte(tc.input), flags)
+					assertEq(t, string(stderr), "")
+					assertEq(t, code, 0)
+					decoded, stderr, code := run(encoded, "tj")
+					assertEq(t, string(stderr), "")
+					assertEq(t, code, 0)
+					assertEq(t, string(decoded), tc.input+"\n")
+				})
+			}
+		})
+	}
+}
+
 func run(in []byte, flags ...string) (stdout, stderr []byte, code int) {
 	out, err := &bytes.Buffer{}, &bytes.Buffer{}
 	code = main.Run(bytes.NewReader(in), out, err, append([]string{"yj"}, flags...))
